@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-nrrBUnes8/cCOUrcQynerVr/uiLqV+DTzRDErvIlUA8=' 'sha256-0BBbvT2fKZgzmqQtulYQcCxHuQwci60N/BmBfa5043s='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-CFB136GdIME7mL6G/rZLHGnEgDN6gJlZ7O1DnhuZ29A=' 'sha256-0BBbvT2fKZgzmqQtulYQcCxHuQwci60N/BmBfa5043s='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f5f5f7">
@@ -374,7 +374,7 @@ body.authpage{background:var(--bg)}
 .syncb{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:#1f8a3e}
 .syncb::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .syncb[data-k="err"]{color:var(--red)}
-/* ---------- Vista de la alumna ---------- */
+/* ---------- Vista de estudiante ---------- */
 .sapp{max-width:880px;margin:0 auto;padding:18px 22px 60px}
 .shead{display:flex;align-items:center;gap:12px;padding:6px 0 20px}
 .shead .sp{flex:1}
@@ -22256,7 +22256,7 @@ function exportWord(plan, student) {
   }).catch(err => { console.error(err); alert("No se pudo crear el Word: " + err.message); });
 }
 
-/* ===== Vista de la alumna: repaso de lo visto en clase ===== */
+/* ===== Vista de estudiante: repaso de lo visto en clase ===== */
 
 let SV = { results: [], tab: "home" };
 function stuKeysSeen(st) { return Object.keys(st.given).filter(k => isSeen(st, k) && info(k)); }
