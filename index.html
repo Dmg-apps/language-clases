@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-ltjr8O29ZQjFZvUIG25ROkojIGhYnvgu+P6ndRRuC8k=' 'sha256-IZzHqTT0OrOgR0+pLWq+7N0hHP5dFw9iTvAtc53T1j0='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-z481wGVIGeh+994wnpgwsAi+Y2JnnMHuhb+wM9PJ2S4=' 'sha256-QNZxJtvwGkAg6Biq9W8aMP0YSnj9Z66e9YZ39mrAXQ8='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f5f5f7">
@@ -21426,6 +21426,10 @@ function progress(st, lv) {
 
 const AUDIO_KEYS = window.__AUDIO_KEYS__ || new Set();
 const AUDIO_BANK = { size: () => AUDIO_KEYS.size };
+const TEACHER_KEYS = window.__TEACHER_KEYS__ || new Set();
+const FEMALE = /katja|amala|seraphina|louisa|tanja|gisela|elke|klarissa|maja|anna|petra|helena|marlene|vicki|hedda|ingrid|leni|sabine|female|weiblich/i;
+const MALE = /conrad|killian|florian|kasper|bernd|christoph|ralf|klaus|markus|yannick|martin|viktor|stefan|jonas|daniel|hans|male|männlich/i;
+const SPEAKER_F = /^(Frau|Ärztin|Kundin|Clara|Verkäuferin|Mutter|Lehrerin|Anna|Sofia)$/;
 const normKey = s => String(s).normalize("NFC").replace(/\s+/g, " ").trim();
 const Audio_ = {
   el: null, btn: null, voices: [],
@@ -21438,11 +21442,18 @@ const Audio_ = {
     if (this.btn) { this.btn.classList.remove("playing"); this.btn = null; }
   },
   // key: clave del banco (texto o «h:<id>»); text: lo que se lee si no hay grabación
+  naturalVoices() { return this.germanVoices().filter(v => /natural|neural|online|premium|enhanced|erweitert|siri/i.test(v.name) && !/compact/i.test(v.name)); },
+  useDevice() { return (this.settings().voiceMode || "auto") === "auto" && this.naturalVoices().length > 0; },
   play(key, opts = {}) {
     const btn = opts.btn || null;
     if (btn && this.btn === btn) { this.stop(); return; } // segundo clic = parar
     this.stop();
     const k = normKey(key), slow = !!opts.slow;
+    // 1) tu grabación manda siempre; 2) voz natural del dispositivo; 3) grabación sintética
+    if (!TEACHER_KEYS.has(k) && this.useDevice()) {
+      const text = opts.text || (k.startsWith("h:") && typeof H !== "undefined" && H[k.slice(2)] ? H[k.slice(2)].text : k);
+      if (!/^(n|t):\d/.test(text)) return this.speakNatural(text, slow, btn, opts.onend);
+    }
     const hasSlow = slow && AUDIO_KEYS.has(k + ":slow"), useKey = hasSlow ? k + ":slow" : k;
     if (AUDIO_KEYS.has(useKey)) {
       const token = this.token = Symbol(); this.mark(btn);
@@ -21474,6 +21485,28 @@ const Audio_ = {
   },
   germanVoices() { return (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter(v => this.rankVoice(v) >= 0).sort((a, b) => this.rankVoice(b) - this.rankVoice(a)); },
   bestVoice() { const all = this.germanVoices(), pref = this.settings().voice; return all.find(v => v.name === pref) || all[0] || null; },
+  // Diálogos «Kellner: … – Frau: …» con una voz natural distinta por personaje
+  speakNatural(text, slow, btn, onend) {
+    const vs = this.naturalVoices(), pref = vs.find(v => v.name === this.settings().voice);
+    const fem = vs.filter(v => FEMALE.test(v.name)), mal = vs.filter(v => MALE.test(v.name));
+    const parts = String(text).split(/ – (?=[A-ZÄÖÜ][\wäöüß]+:)/);
+    const dialog = parts.length > 1 && parts.every(p => /^[A-ZÄÖÜ][\wäöüß]+:/.test(p));
+    const assign = {}, used = { f: 0, m: 0 };
+    const segs = dialog ? parts.map(p => { const m = p.match(/^([A-ZÄÖÜ][\wäöüß]+):\s*(.*)$/); const who = m[1];
+      if (!assign[who]) { const g = SPEAKER_F.test(who) ? "f" : "m", pool = g === "f" ? (fem.length ? fem : vs) : (mal.length ? mal : vs), n = used[g]++;
+        assign[who] = { v: pool[n % pool.length], pitch: n >= pool.length ? 0.82 : 1 }; }
+      return { t: m[2], v: assign[who].v, pitch: assign[who].pitch }; }) : [{ t: text, v: pref || vs[0], pitch: 1 }];
+    this.mark(btn); const token = this.token = Symbol();
+    const next = i => {
+      if (this.token !== token) return;
+      if (i >= segs.length) { if (this.btn === btn) this.stop(); if (onend) onend(); return; }
+      const u = new SpeechSynthesisUtterance(segs[i].t.replace(/_{3,}/g, " ").replace(/…/g, ","));
+      u.lang = segs[i].v.lang || "de-DE"; u.voice = segs[i].v; u.pitch = segs[i].pitch; u.rate = (slow ? 0.72 : 0.95) * (this.settings().rate || 1);
+      u.onend = () => setTimeout(() => next(i + 1), dialog ? 350 : 0); u.onerror = () => next(i + 1);
+      speechSynthesis.speak(u);
+    };
+    speechSynthesis.cancel(); next(0);
+  },
   tts(text, slow, btn, onend) {
     if (!window.speechSynthesis) { toast("Este navegador no tiene voz sintética."); return; }
     const u = new SpeechSynthesisUtterance(String(text).replace(/_{3,}/g, " "));
@@ -21751,6 +21784,7 @@ function viewSettings() {
   <div style="max-width:680px" class="stack">
    <div><div class="gh">Voz</div><div class="group">
     <div class="row">${tileI("escucha")}<span class="lab"><b>Voces neuronales alemanas</b><small>${nAudio} grabaciones incluidas: textos de escucha (una voz por personaje), dictados, pronunciación, vocabulario, frases y números. Suenan igual en cualquier ordenador, sin conexión.</small></span></div>
+    <div class="row"><span class="lab"><b>Voz preferida</b><small>${Audio_.naturalVoices().length ? "Este dispositivo tiene voces naturales: " + esc(Audio_.naturalVoices().slice(0, 3).map(v => v.name.replace(/Microsoft |Online |\(Natural\)|- German.*$/g, "").trim()).join(", ")) : "Este dispositivo no tiene voces naturales alemanas; se usan las grabaciones."}</small></span><div style="width:260px">${seg("svmode", [["auto", "Natural del dispositivo"], ["rec", "Grabaciones"]], s.voiceMode || "auto")}</div></div>
     <div class="row"><span class="lab"><b>Velocidad</b></span><div style="width:220px">${seg("srate", [[0.85, "Pausada"], [1, "Normal"]], s.rate)}</div></div>
     <div class="row"><span class="lab"><b>Probar</b></span>${audioBtn("h:h-a1-cafe", { label: "Diálogo en el café" })}${audioBtn("Miete – Mitte", { label: "Miete – Mitte" })}</div></div>
     <div class="gf">El botón con la tortuga reproduce una versión grabada más despacio, no una voz acelerada o ralentizada.</div></div>
@@ -21868,6 +21902,7 @@ function act(e) {
     case "remove": if (confirm("¿Eliminar esta cuenta definitivamente? También se borran sus resultados.")) Admin.remove(el.dataset.id).then(() => { toast("Cuenta eliminada"); loadAccess(); }).catch(e => alert(e.message)); return;
     case "recq": recQ = el.value; { const l = $("#recList"); if (l) l.innerHTML = recListHTML(); } return;
     case "rec": recordSheet(el.dataset.k); return;
+    case "svmode": state.settings = Object.assign({}, state.settings, { voiceMode: el.dataset.v }); break;
     case "srate": state.settings = Object.assign({}, state.settings, { rate: +el.dataset.v }); break;
     case "svoice": state.settings = Object.assign({}, state.settings, { voice: el.value }); break;
     case "ssounds": state.settings = Object.assign({}, state.settings, { sounds: el.checked }); Sfx.ok(); return save();
@@ -22591,6 +22626,8 @@ if (mode === "teacher") initTeacher(); else initStudent(__profile);
     const [{ data: c, error: e1 }, keys] = await Promise.all([sb.from("content").select("data").eq("id", "main").single(), fetchAudioKeys()]);
     if (e1) throw e1;
     window.__DATA__ = c.data; window.__AUDIO_KEYS__ = keys;
+    const { data: tk } = await sb.from("audio").select("key").eq("source", "teacher");
+    window.__TEACHER_KEYS__ = new Set((tk || []).map(r => r.key));
   }
   async function fetchAudioKeys() {
     const all = []; let from = 0;
@@ -22683,7 +22720,7 @@ if (mode === "teacher") initTeacher(); else initStudent(__profile);
     async saveAudio(key, dataUri) {
       if (dataUri.length > 3900000) throw new Error("La grabación es demasiado larga (máx. ~2 minutos).");
       const { error } = await sb.from("audio").upsert({ key, b64: dataUri, source: "teacher" }); if (error) throw error;
-      audioCache.set(key, Promise.resolve(dataUri)); if (window.__AUDIO_KEYS__) window.__AUDIO_KEYS__.add(key);
+      audioCache.set(key, Promise.resolve(dataUri)); if (window.__AUDIO_KEYS__) window.__AUDIO_KEYS__.add(key); if (window.__TEACHER_KEYS__) window.__TEACHER_KEYS__.add(key);
     },
     async teacherAudioKeys() { const { data } = await sb.from("audio").select("key").eq("source", "teacher"); return (data || []).map(r => r.key); },
     signOut, flush: () => Sync.flush(),
