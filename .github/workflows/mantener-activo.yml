@@ -1,6 +1,5 @@
 # Mantiene activo el proyecto gratuito de Supabase (se pausa tras 7 días sin actividad).
-# Hace una consulta de solo lectura cada 3 días con la clave pública; no lee ningún dato
-# porque la base de datos no devuelve nada sin iniciar sesión.
+# Cada 3 días llama a la función ping() (devuelve 1 y no lee ningún dato).
 # Una vez al mes actualiza .github/latido.txt para que GitHub no desactive esta tarea
 # (GitHub desactiva las tareas programadas tras 60 días sin cambios en el repositorio).
 name: Mantener Supabase activo
@@ -17,9 +16,9 @@ jobs:
       - name: Consultar la base de datos
         run: |
           for i in 1 2 3; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' \
-              -H "apikey: sb_publishable_UdB9kGZXOTTNNhe33jOyfQ_k37TRkYD" \
-              "https://kslnlfmzlgyqkbrqrhdg.supabase.co/rest/v1/content?select=id&limit=1")
+            code=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+              -H "apikey: sb_publishable_UdB9kGZXOTTNNhe33jOyfQ_k37TRkYD" -H "Content-Type: application/json" \
+              -d '{}' "https://kslnlfmzlgyqkbrqrhdg.supabase.co/rest/v1/rpc/ping")
             echo "Respuesta: $code"
             [ "$code" = "200" ] && exit 0
             sleep 20
