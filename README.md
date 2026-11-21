@@ -1,4 +1,4 @@
-# Deutsch A1–B1
+# Deutsch A1–C2
 
 Herramienta privada para preparar y repasar clases de alemán.
 

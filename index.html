@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-CFB136GdIME7mL6G/rZLHGnEgDN6gJlZ7O1DnhuZ29A=' 'sha256-0BBbvT2fKZgzmqQtulYQcCxHuQwci60N/BmBfa5043s='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-ql3N6Rx4CUgnKc652b4N27MppVeWKF58PVRy//+qsek=' 'sha256-7zk0/AQOk5B6LwzEX5Sxg2PJ45Evy2oPpewqMgbByAI='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f5f5f7">
-<title>Deutsch A1–B1</title>
+<title>Deutsch A1–C2</title>
 <style>/* ===== Sistema visual: inspirado en las Human Interface Guidelines de Apple ===== */
 :root{
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI Variable Text","Segoe UI",Roboto,Arial,sans-serif;
@@ -21026,11 +21026,451 @@ function gRuleta() {
   };
 }
 
+/* ===== Generadores de ejercicios (variación ilimitada, A1–C2) =====
+   Aplican las reglas del alemán sobre un léxico revisado (D.bank). Cada llamada produce un ejercicio nuevo:
+   { prompt, answer ("a|b" = alternativas válidas), kind: "type"|"mc", opts?, explain, topic, lvl, audio } */
+
+const GEN = (() => {
+  const B = () => D.bank || { verbs: [], nouns: [], adjs: [] };
+  const pick = (r, a) => a[Math.floor(r() * a.length)];
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const G4 = { der: "m", die: "f", das: "n" };
+  const DEF = { nom: { m: "der", f: "die", n: "das", pl: "die" }, akk: { m: "den", f: "die", n: "das", pl: "die" }, dat: { m: "dem", f: "der", n: "dem", pl: "den" }, gen: { m: "des", f: "der", n: "des", pl: "der" } };
+  const KEND = { nom: { m: "", f: "e", n: "", pl: "e" }, akk: { m: "en", f: "e", n: "", pl: "e" }, dat: { m: "em", f: "er", n: "em", pl: "en" }, gen: { m: "es", f: "er", n: "es", pl: "er" } };
+  const art = (type, c, g) => type === "def" ? DEF[c][g] : type === "ein" ? (g === "pl" ? "" : "ein" + KEND[c][g]) : type === "kein" ? "kein" + KEND[c][g] : "";
+  const POSS = { ich: "mein", du: "dein", er: "sein", sie: "ihr", es: "sein", wir: "unser", ihr: "euer", Sie: "Ihr" };
+  const possForm = (stem, c, g) => { const e = KEND[c][g]; return stem === "euer" && e ? "eur" + e : stem + e; };
+  const ADJ = {
+    weak: { nom: { m: "e", f: "e", n: "e", pl: "en" }, akk: { m: "en", f: "e", n: "e", pl: "en" }, dat: { m: "en", f: "en", n: "en", pl: "en" }, gen: { m: "en", f: "en", n: "en", pl: "en" } },
+    mixed: { nom: { m: "er", f: "e", n: "es", pl: "en" }, akk: { m: "en", f: "e", n: "es", pl: "en" }, dat: { m: "en", f: "en", n: "en", pl: "en" }, gen: { m: "en", f: "en", n: "en", pl: "en" } },
+    strong: { nom: { m: "er", f: "e", n: "es", pl: "e" }, akk: { m: "en", f: "e", n: "es", pl: "e" }, dat: { m: "em", f: "er", n: "em", pl: "en" }, gen: { m: "en", f: "er", n: "en", pl: "er" } },
+  };
+  const CASE_ES = { nom: "nominativo", akk: "acusativo", dat: "dativo", gen: "genitivo" };
+  const PRON = { nom: { ich: "ich", du: "du", er: "er", sie: "sie", es: "es", wir: "wir", ihr: "ihr", sie3: "sie", Sie: "Sie" }, akk: { ich: "mich", du: "dich", er: "ihn", sie: "sie", es: "es", wir: "uns", ihr: "euch", sie3: "sie", Sie: "Sie" }, dat: { ich: "mir", du: "dir", er: "ihm", sie: "ihr", es: "ihm", wir: "uns", ihr: "euch", sie3: "ihnen", Sie: "Ihnen" } };
+  const REFL = { ich: "mich", du: "dich", er: "sich", sie: "sich", wir: "uns", ihr: "euch", sie3: "sich", Sie: "sich" };
+  const PERS = ["ich", "du", "er", "sie", "wir", "ihr", "sie3"];
+  const subj = p => p === "sie3" ? "sie" : p;
+  const subjShow = p => p === "sie3" ? "sie (ellos)" : p === "sie" ? "sie (ella)" : p;
+
+  /* --- Sustantivos --- */
+  function nouns(filter) {
+    const out = [];
+    for (const n of B().nouns) out.push({ a: n[0], g: G4[n[0]], w: n[1], pl: (n[2] || "").replace(/^die /, ""), es: n[3], lvl: n[4], person: (n[5] || "").includes("p"), nform: n[6] || "" });
+    for (const c of D.vocab || []) for (const w of c.words) if (G4[w.a] && !out.some(x => x.w === w.w)) out.push({ a: w.a, g: G4[w.a], w: w.w, pl: w.pl && w.pl !== "—" ? w.pl.replace(/^die /, "") : "", es: w.es, lvl: "A2", person: false, nform: "" });
+    return filter ? out.filter(filter) : out;
+  }
+  const sing = n => !n.person && !/[A-ZÄÖÜ].*[A-ZÄÖÜ]/.test(n.w.slice(1));
+  const concrete = () => B().nouns.filter(n => !(n[5] || "").includes("p") && !n[6]).map(n => ({ a: n[0], g: G4[n[0]], w: n[1], pl: (n[2] || "").replace(/^die /, ""), es: n[3], lvl: n[4], person: false, nform: "" }));
+  const NOT_OBJ = ["Apfel", "Banane", "Tomate", "Kartoffel", "Ei", "Kuchen", "Brötchen", "Saft", "Bahnhof", "Haltestelle", "Park", "Kirche", "Kino", "Museum", "Bank", "Apotheke", "Krankenhaus", "Supermarkt", "Restaurant", "Hotel", "Garten", "Straße", "Hund", "Katze", "Vogel", "Pferd", "Wand", "Termin", "Rechnung", "Zug", "Bus", "Baum", "Blume", "Zimmer", "Küche", "Bad", "Balkon", "Haus", "Wohnung"];
+  const objects = () => concrete().filter(n => !NOT_OBJ.includes(n.w));
+  const ADJ_OBJ = ["neu", "alt", "schön", "teuer", "billig", "groß", "klein", "modern", "sauber", "schmutzig", "schwer", "leicht", "bequem", "rot", "blau", "grün", "gelb", "schwarz", "weiß", "grau", "braun"];
+  // «sie» ambiguo: se aclara en el enunciado
+  const subjP = p => p === "sie" ? "sie (ella)" : p === "sie3" ? "sie (ellos)" : p;
+  const gapStart = (p, rest) => cap(subjP(p)) + " ___ " + rest;
+  function nounForm(n, c, plural) {
+    if (plural) { const p = n.pl; return c === "dat" && !/[ns]$/.test(p) ? p + "n" : p; }
+    if (n.nform && c !== "nom") return n.nform;
+    if (c === "gen" && n.g !== "f") {
+      if (/nis$/.test(n.w)) return [n.w + "ses"];
+      if (/(s|ß|x|z|sch)$/.test(n.w)) return [n.w + "es"];
+      const syl = (n.w.toLowerCase().match(/[aeiouäöüy]+/g) || []).length;
+      return syl === 1 ? [n.w + "es", n.w + "s"] : [n.w + "s"];
+    }
+    return n.w;
+  }
+  const first = x => Array.isArray(x) ? x[0] : x;
+  const alts = (pre, x, post = "") => (Array.isArray(x) ? x : [x]).map(f => (pre + f + post).trim()).join("|");
+
+  /* --- Verbos --- */
+  function verbs(filter) { return B().verbs.filter(v => !filter || filter(v)); }
+  const SEP = v => v.i.includes("|") ? v.i.split("|")[0] : "";
+  const INF = v => v.i.replace("|", "");
+  const BASE = v => v.i.includes("|") ? v.i.split("|")[1] : v.i;
+  const stemOf = inf => inf.replace(/e?n$/, "");
+  function pres(v, p) {
+    const base = BASE(v), st = stemOf(base);
+    const du = v.du.split(" ")[0], er = v.er.split(" ")[0];
+    if (base === "wissen") return { ich: "weiß", du: "weißt", er: "weiß", sie: "weiß", wir: "wissen", ihr: "wisst", sie3: "wissen", Sie: "wissen" }[p];
+    const ihr = /(t|d)$/.test(st) || /[^aeiouäöülrh][mn]$/.test(st) ? st + "et" : st + "t";
+    return { ich: st + "e", du, er, sie: er, es: er, wir: base, ihr, sie3: base, Sie: base }[p];
+  }
+  const stemChanges = v => { const st = stemOf(BASE(v)); return !v.du.split(" ")[0].startsWith(st.slice(0, Math.max(2, st.length - 1))); };
+  function praet(v, p) {
+    const pt = v.pt.split(" ")[0];
+    if (/te$/.test(pt)) return { ich: pt, du: pt + "st", er: pt, sie: pt, wir: pt + "n", ihr: pt + "t", sie3: pt + "n", Sie: pt + "n" }[p];
+    return { ich: pt, du: /[sßz]$/.test(pt) ? pt + "est" : pt + "st", er: pt, sie: pt, wir: pt + "en", ihr: /[td]$/.test(pt) ? pt + "et" : pt + "t", sie3: pt + "en", Sie: pt + "en" }[p];
+  }
+  const HABEN = { ich: "habe", du: "hast", er: "hat", sie: "hat", es: "hat", wir: "haben", ihr: "habt", sie3: "haben", Sie: "haben" };
+  const SEIN = { ich: "bin", du: "bist", er: "ist", sie: "ist", es: "ist", wir: "sind", ihr: "seid", sie3: "sind", Sie: "sind" };
+  const WERDEN = { ich: "werde", du: "wirst", er: "wird", sie: "wird", es: "wird", wir: "werden", ihr: "werdet", sie3: "werden", Sie: "werden" };
+  const HATTE = { ich: "hatte", du: "hattest", er: "hatte", sie: "hatte", wir: "hatten", ihr: "hattet", sie3: "hatten", Sie: "hatten" };
+  const WAR = { ich: "war", du: "warst", er: "war", sie: "war", wir: "waren", ihr: "wart", sie3: "waren", Sie: "waren" };
+  const MODAL = {
+    können: ["kann", "kannst", "kann", "können", "könnt", "können", "konnte", "könnte"], müssen: ["muss", "musst", "muss", "müssen", "müsst", "müssen", "musste", "müsste"],
+    wollen: ["will", "willst", "will", "wollen", "wollt", "wollen", "wollte", "wollte"], dürfen: ["darf", "darfst", "darf", "dürfen", "dürft", "dürfen", "durfte", "dürfte"],
+    sollen: ["soll", "sollst", "soll", "sollen", "sollt", "sollen", "sollte", "sollte"], möchten: ["möchte", "möchtest", "möchte", "möchten", "möchtet", "möchten", "wollte", "möchte"],
+  };
+  const MIDX = { ich: 0, du: 1, er: 2, sie: 2, es: 2, wir: 3, ihr: 4, sie3: 5, Sie: 5 };
+  const modalPres = (m, p) => MODAL[m][MIDX[p]];
+  const modalPraet = (m, p) => { const b = MODAL[m][6]; return { ich: b, du: b + "st", er: b, sie: b, wir: b + "n", ihr: b + "t", sie3: b + "n", Sie: b + "n" }[p]; };
+  const auxOf = v => v.aux[0] === "s" ? SEIN : HABEN;
+  const auxAlt = v => v.aux.length > 1 ? (v.aux[1] === "s" ? SEIN : HABEN) : null;
+  // Frase principal en presente: «Ich stehe um sieben Uhr auf.»
+  const mainPres = (v, p) => cap([subj(p), pres(v, p), v.c, SEP(v)].filter(Boolean).join(" ")) + ".";
+  // Subordinada: «weil ich um sieben Uhr aufstehe»
+  const subPres = (v, p) => [subj(p), v.c, SEP(v) + pres(v, p)].filter(Boolean).join(" ");
+  const perf = (v, p, A) => cap([subj(p), (A || auxOf(v))[p], v.c, v.p2].join(" ")) + ".";
+  const perfAlts = (v, p) => [perf(v, p)].concat(auxAlt(v) ? [perf(v, p, auxAlt(v))] : []).join("|");
+
+  /* --- Ayudas de ejercicio --- */
+  const item = (o) => Object.assign({ kind: "type" }, o);
+  const ordinal = n => (n === 1 ? "erst" : n === 3 ? "dritt" : n === 7 ? "siebt" : n === 8 ? "acht" : n < 20 ? numWord(n) + "t" : numWord(n) + "st");
+
+  const L = {};
+  /* ======== A1 ======== */
+  L.praes = { lvl: "A1", topics: ["praes", "vokal", "trenn"], t: "Presente", f(r, topic) {
+    let pool = verbs(v => v.i !== "wissen|");
+    if (topic === "vokal") pool = pool.filter(stemChanges); else if (topic === "trenn") pool = pool.filter(v => SEP(v)); else if (topic === "praes") pool = pool.filter(v => !stemChanges(v) && !SEP(v));
+    const v = pick(r, pool), p = pick(r, PERS), f = pres(v, p);
+    const sent = gapStart(p, [v.c, SEP(v)].filter(Boolean).join(" ")) + ".";
+    return item({ prompt: sent + " (" + INF(v) + ")", answer: f, topic: topic || (stemChanges(v) ? "vokal" : SEP(v) ? "trenn" : "praes"), lvl: "A1", audio: mainPres(v, p), explain: `${INF(v)} (${v.es}) → ${subjShow(p)} ${f}${SEP(v) ? " … " + SEP(v) : ""}` });
+  } };
+  L.seinhaben = { lvl: "A1", topics: ["seinhaben"], f(r) {
+    const p = pick(r, PERS), useSein = r() < 0.5;
+    const ctx = useSein ? pick(r, ["heute sehr müde", "aus Spanien", "in Berlin", "zu Hause", "glücklich", "Lehrer von Beruf"]) : pick(r, ["keine Zeit", "Hunger", "zwei Kinder", "ein neues Auto", "morgen frei", "Durst"]);
+    const f = useSein ? SEIN[p] : HABEN[p];
+    const s = gapStart(p, ctx) + ".";
+    return item({ prompt: s + " (" + (useSein ? "sein" : "haben") + ")", answer: f, topic: "seinhaben", lvl: "A1", audio: (cap(subj(p)) + " " + f + " " + ctx + "."), explain: (useSein ? "sein" : "haben") + " → " + subjShow(p) + " " + f });
+  } };
+  L.artikel = { lvl: "A1", topics: ["artikel", "genus"], f(r) {
+    const n = pick(r, nouns(n => sing(n))), t = r() < 0.5 ? "ein" : "def";
+    const a = t === "ein" ? art("ein", "nom", n.g) : n.a;
+    const s = t === "ein" ? `Das ist ___ ${n.w}.` : `___ ${n.w} ist neu.`;
+    return item({ prompt: s + (t === "ein" ? " (indeterminado)" : " (determinado)"), answer: t === "ein" ? a : cap(a), topic: "artikel", lvl: "A1", audio: s.replace("___", t === "ein" ? a : cap(a)), explain: `${n.a} ${n.w} (${n.es}) → ${t === "ein" ? a : n.a}` });
+  } };
+  L.plural = { lvl: "A1", topics: ["plural"], f(r) {
+    const n = pick(r, nouns(n => n.pl && sing(n)));
+    return item({ prompt: `${n.a} ${n.w} – die ___`, answer: n.pl, topic: "plural", lvl: "A1", audio: `${n.a} ${n.w}, die ${n.pl}`, explain: `${n.a} ${n.w} (${n.es}) → die ${n.pl}` });
+  } };
+  L.akk = { lvl: "A1", topics: ["akk", "neg", "artikel"], f(r, topic) {
+    const n = pick(r, concrete()), p = pick(r, ["ich", "du", "wir", "er"]);
+    const vb = pick(r, [["kaufen", "kaufe", "kaufst", "kaufen", "kauft"], ["brauchen", "brauche", "brauchst", "brauchen", "braucht"], ["suchen", "suche", "suchst", "suchen", "sucht"], ["haben", "habe", "hast", "haben", "hat"]]);
+    const vf = { ich: vb[1], du: vb[2], wir: vb[3], er: vb[4] }[p];
+    const type = topic === "neg" ? "kein" : pick(r, ["def", "ein", "kein"]);
+    const a = art(type, "akk", n.g), hint = type === "def" ? DEF.nom[n.g] : type === "ein" ? (n.g === "f" ? "eine" : "ein") : "negación";
+    const s = `${cap(p)} ${vf} ___ ${n.w}.`;
+    return item({ prompt: s + ` (${hint})`, answer: a, topic: type === "kein" ? "neg" : "akk", lvl: "A1", audio: s.replace("___", a), explain: `${n.a} ${n.w}: acusativo → ${a}${n.g === "m" ? " (solo cambia el masculino)" : ""}` });
+  } };
+  L.poss = { lvl: "A1", topics: ["poss"], f(r) {
+    const n = pick(r, concrete().concat(nouns(n => n.person && !n.nform))), owner = pick(r, ["ich", "du", "er", "sie", "wir", "ihr", "Sie"]), c = n.person || r() < 0.5 ? "nom" : "akk";
+    const f = possForm(POSS[owner], c, n.g);
+    const s = c === "nom" ? `Das ist ___ ${n.w}.` : `Ich suche ___ ${n.w}.`;
+    const show = owner === "sie" ? "sie (ella)" : owner === "Sie" ? "Sie (usted)" : owner;
+    return item({ prompt: s + ` (${show})`, answer: c === "nom" ? f : f, topic: "poss", lvl: "A1", audio: s.replace("___", f), explain: `${show} → ${POSS[owner]}; ${n.a} ${n.w}, ${CASE_ES[c]} → ${f}` });
+  } };
+  L.modal = { lvl: "A1", topics: ["modal1", "modal2"], f(r) {
+    const m = pick(r, ["können", "müssen", "wollen", "sollen", "möchten"]), v = pick(r, verbs(v => MODAL_OK(v))), p = pick(r, PERS), f = modalPres(m, p);
+    const s = gapStart(p, [v.c, INF(v)].join(" ")) + ".";
+    return item({ prompt: s + ` (${m})`, answer: f, topic: "modal1", lvl: "A1", audio: cap([subj(p), f, v.c, INF(v)].join(" ")) + ".", explain: `${m} → ${subjShow(p)} ${f}; el infinitivo (${INF(v)}) va al final.` });
+  } };
+  const IMP_OK = ["lernen", "kaufen", "kochen", "machen", "hören", "fragen", "suchen", "bezahlen", "warten", "öffnen", "antworten", "zeigen", "putzen", "erklären", "erzählen", "bestellen", "reparieren", "ein|kaufen", "auf|räumen", "an|machen", "zu|machen", "ab|holen", "fahren", "gehen", "lesen", "schreiben", "nehmen", "geben", "helfen", "waschen", "auf|stehen", "an|rufen", "ein|laden", "mit|bringen", "vor|lesen", "ein|steigen", "aus|steigen", "trinken", "schlafen"];
+  const MODAL_OK = v => !/nicht|noch|oft/.test(v.c) && !["wissen", "kennen", "sitzen", "stehen", "liegen", "bekommen", "verlieren", "vergessen", "gewinnen", "erreichen", "kommen", "ein|schlafen"].includes(v.i);
+  const IMP_IRR = { nehmen: "nimm", lesen: "lies", essen: "iss", geben: "gib", helfen: "hilf", sehen: "sieh", sprechen: "sprich", treffen: "triff", vergessen: "vergiss", empfehlen: "empfiehl" };
+  function impDu(v) {
+    const base = BASE(v), st = stemOf(base);
+    if (IMP_IRR[base]) return [IMP_IRR[base]];
+    if (/(t|d)$/.test(st) || /[^aeiouäöülrh][mn]$/.test(st)) return [st + "e"];
+    return [st, st + "e"]; // «Lern!» y «Lerne!» son correctas
+  }
+  L.imp = { lvl: "A1", topics: ["imp"], f(r) {
+    const v = pick(r, verbs(v => IMP_OK.includes(v.i))), who = pick(r, ["du", "ihr", "Sie"]);
+    const tail = [v.c, SEP(v)].filter(Boolean).join(" ");
+    let forms;
+    if (who === "du") forms = impDu(v).map(x => cap(x) + (tail ? " " + tail : "") + "!");
+    else if (who === "ihr") forms = [cap(pres(v, "ihr")) + (tail ? " " + tail : "") + "!"];
+    else forms = [cap(BASE(v)) + " Sie" + (tail ? " " + tail : "") + "!"];
+    return item({ prompt: `Imperativo (${who}): ${subj(who === "Sie" ? "Sie" : who)} – ${INF(v)} – ${v.c}`, answer: forms.join("|"), topic: "imp", lvl: "A1", audio: forms[0], explain: `${INF(v)} → ${forms[0]}` });
+  } };
+  L.zahlen = { lvl: "A1", topics: ["zahlen"], f(r) {
+    const d = 1 + Math.floor(r() * 31), m = pick(r, ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]);
+    const am = r() < 0.5, f = ordinal(d) + (am ? "en" : "e");
+    const s = am ? `Mein Geburtstag ist am ___ ${m}. (${d}.)` : `Heute ist der ___ ${m}. (${d}.)`;
+    return item({ prompt: s, answer: f, topic: "zahlen", lvl: "A1", audio: s.replace("___", f).replace(/ \(\d+\.\)/, ""), explain: `${d}. → ${am ? "am " : "der "}${f}` });
+  } };
+
+  /* ======== A2 ======== */
+  L.perfekt = { lvl: "A2", topics: ["perfhaben", "perfsein", "partizip", "zeiten"], f(r, topic) {
+    let pool = verbs();
+    if (topic === "perfsein") pool = pool.filter(v => v.aux[0] === "s"); if (topic === "perfhaben") pool = pool.filter(v => v.aux[0] === "h");
+    const v = pick(r, pool), p = pick(r, PERS), mode = topic === "partizip" ? 2 : Math.floor(r() * 3);
+    if (mode === 0) {
+      const A = auxOf(v)[p], s = gapStart(p, [v.c, v.p2].join(" ")) + ".";
+      const opts = [HABEN[p], SEIN[p]];
+      return item({ kind: "mc", prompt: s, answer: v.aux.length > 1 ? HABEN[p] + "|" + SEIN[p] : A, opts, topic: v.aux[0] === "s" ? "perfsein" : "perfhaben", lvl: "A2", audio: cap([subj(p), A, v.c, v.p2].join(" ")) + ".", explain: `${INF(v)} → Perfekt con ${v.aux[0] === "s" ? "sein (movimiento o cambio de estado)" : "haben"}${v.aux.length > 1 ? "; en el sur y en Austria también con " + (v.aux[1] === "s" ? "sein" : "haben") : ""}.` });
+    }
+    if (mode === 2) return item({ prompt: `Partizip II: ${INF(v)} (${v.es})`, answer: v.p2, topic: "partizip", lvl: "A2", audio: v.p2, explain: `${INF(v)} → ${v.p2}` });
+    return item({ prompt: `Pasa al Perfekt: ${mainPres(v, p)}`, answer: perfAlts(v, p), topic: v.aux[0] === "s" ? "perfsein" : "perfhaben", lvl: "A2", audio: perf(v, p), explain: `${auxOf(v)[p]} … ${v.p2} (el participio va al final)` });
+  } };
+  L.praeteritum = { lvl: "A2", topics: ["praetsh", "praetmodal", "praetreg"], f(r, topic) {
+    const p = pick(r, PERS), k = topic || pick(r, ["praetsh", "praetmodal", "praetreg"]);
+    if (k === "praetsh") {
+      const sein = r() < 0.5, f = sein ? WAR[p] : HATTE[p], ctx = sein ? pick(r, ["gestern krank", "letztes Jahr in Wien", "sehr müde", "im Urlaub"]) : pick(r, ["gestern keine Zeit", "viel Arbeit", "Glück", "einen Termin beim Arzt"]);
+      const s = gapStart(p, ctx) + ".";
+      return item({ prompt: s + ` (${sein ? "sein" : "haben"}, Präteritum)`, answer: f, topic: k, lvl: "A2", audio: cap(subj(p)) + " " + f + " " + ctx + ".", explain: `${sein ? "sein" : "haben"} → ${subjShow(p)} ${f}` });
+    }
+    if (k === "praetmodal") {
+      const m = pick(r, ["können", "müssen", "wollen", "sollen"]), v = pick(r, verbs(v => MODAL_OK(v))), f = modalPraet(m, p);
+      const s = gapStart(p, [v.c, INF(v)].join(" ")) + ".";
+      return item({ prompt: s + ` (${m}, Präteritum)`, answer: f, topic: k, lvl: "A2", audio: cap([subj(p), f, v.c, INF(v)].join(" ")) + ".", explain: `${m} → ${subjShow(p)} ${f} (sin Umlaut)` });
+    }
+    const v = pick(r, verbs()), pp = pick(r, ["ich", "er", "sie", "wir", "sie3"]), f = praet(v, pp);
+    const s = cap([subj(pp), f, v.c, SEP(v)].filter(Boolean).join(" ")) + ".";
+    return item({ prompt: `Pasa al Präteritum: ${mainPres(v, pp)}`, answer: s, topic: "praetreg", lvl: "B1", audio: s, explain: `${INF(v)} → ${subjShow(pp)} ${f}` });
+  } };
+  const DATPREP = [["mit", "fahre", "mit dem Auto"], ["bei", "wohne", ""], ["zu", "gehe", ""], ["von", "bekomme einen Brief", ""], ["aus", "komme", ""]];
+  L.dativ = { lvl: "A2", topics: ["dat", "praepdat", "verbdat", "ndekl"], f(r, topic) {
+    const pers = nouns(n => n.person), n = pick(r, topic === "ndekl" ? pers.filter(x => x.nform) : pers), plural = !n.nform && r() < 0.25 && n.pl;
+    const g = plural ? "pl" : n.g, a = DEF.dat[g], nf = first(nounForm(n, "dat", plural));
+    const tpl = pick(r, [["Ich helfe", "", "verbdat"], ["Ich danke", "", "verbdat"], ["Das Buch gehört", "", "verbdat"], ["Ich spreche mit", "", "praepdat"], ["Ich wohne bei", "", "praepdat"], ["Ich gehe zu", "", "praepdat"], ["Ich bekomme eine E-Mail von", "", "praepdat"]]);
+    if (topic === "ndekl") {
+      const s = `${tpl[0]} ${a} ___.`;
+      return item({ prompt: s + ` (${n.w})`, answer: nf, topic: "ndekl", lvl: "B1", audio: s.replace("___", nf), explain: `${n.w} es de la declinación en -n: ${n.a} ${n.w} → ${a} ${nf}` });
+    }
+    let s = `${tpl[0]} ___ ${nf}.`; let ans = a;
+    if (tpl[0] === "Ich gehe zu") { ans = a === "dem" ? "zum" : a === "der" ? "zur" : "zu den"; s = `Ich gehe ___ ${nf}.`; }
+    if (tpl[0] === "Ich wohne bei" && a === "dem") { ans = "beim"; s = `Ich wohne ___ ${nf}.`; }
+    if (tpl[0] === "Ich bekomme eine E-Mail von" && a === "dem") { ans = "vom"; s = `Ich bekomme eine E-Mail ___ ${nf}.`; }
+    const hint = plural ? "die (plural)" : n.a;
+    return item({ prompt: s + ` (${hint}${/zu|bei|von/.test(tpl[0]) && ans !== a ? ", con contracción" : ""})`, answer: ans, topic: tpl[2], lvl: "A2", audio: s.replace("___", ans), explain: `${tpl[0].split(" ").pop()} + dativo: ${hint} → ${a}${ans !== a ? " (" + ans + ")" : ""}` });
+  } };
+  const AKKPREP = ["für", "ohne", "durch", "gegen", "um"], DPREP = ["mit", "nach", "aus", "von", "bei", "seit", "zu"];
+  const PREP_FRAMES = [
+    ["für", "akk", "Das Geschenk ist für ___ N.", n => n.person],
+    ["ohne", "akk", "Ich gehe nie ohne ___ N aus dem Haus.", n => ["Handy", "Schlüssel", "Tasche", "Brille", "Jacke", "Rucksack", "Mantel"].includes(n.w)],
+    ["gegen", "akk", "Das Kind ist gegen ___ N gelaufen.", n => ["Tisch", "Tür", "Stuhl", "Baum", "Schrank", "Wand"].includes(n.w)],
+    ["durch", "akk", "Wir gehen durch ___ N.", n => ["Park", "Garten", "Straße", "Museum", "Bahnhof", "Küche"].includes(n.w)],
+    ["mit", "dat", "Ich fahre mit ___ N zur Arbeit.", n => ["Bus", "Zug", "Fahrrad", "Auto"].includes(n.w)],
+    ["mit", "dat", "Ich spreche oft mit ___ N.", n => n.person],
+    ["von", "dat", "Ich habe ein Geschenk von ___ N bekommen.", n => n.person],
+    ["aus", "dat", "Sie kommt gerade aus ___ N.", n => ["Supermarkt", "Kino", "Museum", "Bank", "Apotheke", "Krankenhaus", "Restaurant", "Hotel", "Küche", "Garten", "Park"].includes(n.w)],
+    ["nach", "dat", "Nach ___ N gehen wir nach Hause.", n => ["Termin", "Kino"].includes(n.w)],
+    ["seit", "dat", "Ich wohne seit ___ N hier.", n => false],
+  ];
+  L.praep = { lvl: "A2", topics: ["praepakk", "praepdat"], f(r, topic) {
+    const frames = PREP_FRAMES.filter(f => !topic || (topic === "praepakk" ? f[1] === "akk" : f[1] === "dat"));
+    for (let k = 0; k < 10; k++) {
+      const fr = pick(r, frames), pool = nouns(fr[3]); if (!pool.length) continue;
+      const n = pick(r, pool), a = DEF[fr[1]][n.g], nf = first(nounForm(n, fr[1]));
+      const s = fr[2].replace("N", nf), full = s.replace("___", a);
+      return item({ prompt: s + ` (${n.a})`, answer: s.startsWith("___") ? cap(a) : a, topic: fr[1] === "akk" ? "praepakk" : "praepdat", lvl: "A2", audio: full.charAt(0).toUpperCase() + full.slice(1), explain: `${fr[0]} + ${fr[1] === "akk" ? "acusativo" : "dativo"}: ${n.a} ${n.w} → ${a} ${nf}` });
+    }
+    return null;
+  } };
+  const PLACES = ["Tisch", "Schrank", "Regal", "Sofa", "Bett", "Stuhl", "Fenster", "Tür", "Wand", "Teppich", "Kühlschrank"];
+  L.wechsel = { lvl: "A2", topics: ["wechseldat", "wechselakk"], f(r, topic) {
+    const loc = nouns(n => PLACES.includes(n.w)), L2 = Object.assign({}, pick(r, loc));
+    const obj = pick(r, [["das Buch", "lege", "liegt", "legen", "das Buch", ["Schrank", "Regal"]], ["den Schlüssel", "lege", "liegt", "legen", "der Schlüssel", ["Schrank", "Regal"]], ["das Handy", "lege", "liegt", "legen", "das Handy", ["Regal"]], ["die Flasche", "stelle", "steht", "stellen", "die Flasche", ["Kühlschrank", "Schrank", "Regal"]], ["die Lampe", "stelle", "steht", "stellen", "die Lampe", []], ["das Glas", "stelle", "steht", "stellen", "das Glas", ["Schrank", "Regal"]], ["das Bild", "hänge", "hängt", "hängen", "das Bild", []], ["die Jacke", "hänge", "hängt", "hängen", "die Jacke", []]]);
+    const CONT = ["Schrank", "Regal", "Kühlschrank"], WALL = ["Wand", "Tür", "Fenster"];
+    let prep;
+    if (obj[3] === "hängen") { const ok = loc.filter(x => WALL.includes(x.w) || (x.w === "Schrank" && obj[4] === "die Jacke")); const L3 = pick(r, ok); L2.w = L3.w; L2.g = L3.g; L2.a = L3.a; prep = L3.w === "Schrank" ? "in" : L3.w === "Fenster" ? "neben" : "an"; }
+    else if (WALL.includes(L2.w)) prep = pick(r, ["an", "neben", "vor"]);
+    else if (CONT.includes(L2.w)) prep = obj[5].includes(L2.w) ? pick(r, ["in", "auf", "neben"]) : pick(r, ["auf", "neben"]);
+    else if (L2.w === "Teppich") prep = pick(r, ["auf", "unter"]);
+    else prep = pick(r, ["auf", "unter", "neben", "hinter", "vor"]);
+    const wohin = topic ? topic === "wechselakk" : r() < 0.5, c = wohin ? "akk" : "dat";
+    const a = DEF[c][L2.g];
+    let ans = prep + " " + a;
+    if (prep === "in" && a === "dem") ans = "im"; else if (prep === "in" && a === "das") ans = "ins"; else if (prep === "an" && a === "dem") ans = "am"; else if (prep === "an" && a === "das") ans = "ans";
+    const full = ans !== prep + " " + a ? ans + "|" + prep + " " + a : ans;
+    const objN = cap(obj[4]);
+    const s = wohin ? `Ich ${obj[1]} ${obj[0]} ___ ${L2.w}.` : `${objN} ${obj[2]} ___ ${L2.w}.`;
+    return item({ prompt: s + ` (${prep}, ${wohin ? "¿adónde?" : "¿dónde?"})`, answer: full, topic: wohin ? "wechselakk" : "wechseldat", lvl: "A2", audio: s.replace("___", ans), explain: `${wohin ? "Wohin? (movimiento) → acusativo" : "Wo? (posición) → dativo"}: ${L2.a} ${L2.w} → ${ans}` });
+  } };
+  L.adjdekl = { lvl: "A2", topics: ["adjakk", "adjdat", "adjohne"], f(r, topic) {
+    const adj = pick(r, B().adjs.filter(a => ADJ_OBJ.includes(a[0]))), n = pick(r, objects().filter(n => n.pl)), stem = adj[4] || adj[0];
+    let type, c, plural = false;
+    if (topic === "adjohne") { type = "strong"; plural = true; c = pick(r, ["nom", "akk", "dat"]); }
+    else if (topic === "adjdat") { type = pick(r, ["weak", "mixed"]); c = "dat"; }
+    else if (topic === "adjakk") { type = pick(r, ["weak", "mixed"]); c = pick(r, ["nom", "akk"]); }
+    else { type = pick(r, ["weak", "mixed", "strong"]); c = pick(r, ["nom", "akk", "dat"]); plural = type === "strong"; }
+    const g = plural ? "pl" : n.g, end = ADJ[type][c][g], f = stem + end;
+    const ar = type === "weak" ? DEF[c][g] : type === "mixed" ? art("ein", c, g) : "";
+    const nf = first(nounForm(n, c, plural));
+    const frame = { nom: ["", "ist hier."], akk: ["Ich kaufe", "."], dat: ["Ich bin zufrieden mit", "."] }[c];
+    const verb = c === "nom" ? (plural ? "sind hier." : "ist hier.") : ".";
+    const body = [ar, "___", nf].filter(Boolean).join(" ");
+    const s = (c === "nom" ? cap(body) + " " + verb : frame[0] + " " + body + ".").replace(" .", ".");
+    const tp = type === "strong" ? "adjohne" : c === "dat" ? "adjdat" : "adjakk";
+    return item({ prompt: s + ` (${adj[0]})`, answer: s.startsWith("___") ? cap(f) : f, topic: tp, lvl: tp === "adjohne" ? "B1" : "A2", audio: s.replace("___", s.startsWith("___") ? cap(f) : f), explain: `${type === "weak" ? "tras artículo determinado" : type === "mixed" ? "tras ein/kein/mein" : "sin artículo"}, ${CASE_ES[c]} ${plural ? "plural" : { m: "masculino", f: "femenino", n: "neutro" }[n.g]} → -${end}` });
+  } };
+  L.kompar = { lvl: "A2", topics: ["kompar"], f(r) {
+    const adj = pick(r, B().adjs.filter(a => a[2] && ADJ_OBJ.includes(a[0]))), n = pick(r, objects().filter(n => n.g !== "f")), sup = r() < 0.4;
+    const pre = n.g === "n" ? "Mein" : "Mein";
+    if (sup) { const s = `Von allen ist mein ${n.w} am ___.`; return item({ prompt: s + ` (${adj[0]})`, answer: adj[3], topic: "kompar", lvl: "A2", audio: s.replace("___", adj[3]), explain: `${adj[0]} – ${adj[2]} – am ${adj[3]}` }); }
+    const s = `${pre} ${n.w} ist ___ als dein ${n.w}.`;
+    return item({ prompt: s + ` (${adj[0]})`, answer: adj[2], topic: "kompar", lvl: "A2", audio: s.replace("___", adj[2]), explain: `${adj[0]} → ${adj[2]} als …` });
+  } };
+  const RV = [["sich freuen", "freue", "freust", "freut", "freuen", "freut", "freuen", "auf das Wochenende"], ["sich interessieren", "interessiere", "interessierst", "interessiert", "interessieren", "interessiert", "interessieren", "für Musik"], ["sich ärgern", "ärgere", "ärgerst", "ärgert", "ärgern", "ärgert", "ärgern", "über den Regen"], ["sich beeilen", "beeile", "beeilst", "beeilt", "beeilen", "beeilt", "beeilen", "am Morgen"], ["sich erinnern", "erinnere", "erinnerst", "erinnert", "erinnern", "erinnert", "erinnern", "an den Urlaub"], ["sich ausruhen", "ruhe", "ruhst", "ruht", "ruhen", "ruht", "ruhen", "am Sonntag"]];
+  L.reflex = { lvl: "A2", topics: ["reflex"], f(r) {
+    const v = pick(r, RV), p = pick(r, PERS), i = { ich: 1, du: 2, er: 3, sie: 3, wir: 4, ihr: 5, sie3: 6 }[p];
+    const sep = v[0] === "sich ausruhen" ? " aus" : "";
+    const s = cap(subjP(p)) + " " + v[i] + " ___ " + v[7] + sep + ".";
+    return item({ prompt: s + ` (${v[0]})`, answer: REFL[p], topic: "reflex", lvl: "A2", audio: cap(subj(p)) + " " + v[i] + " " + REFL[p] + " " + v[7] + sep + ".", explain: `${subjShow(p)} → ${REFL[p]}` });
+  } };
+  L.pronomen = { lvl: "A2", topics: ["pronakk"], f(r) {
+    const n = pick(r, concrete().concat(nouns(n => n.person))), dat = n.person && r() < 0.5;
+    const pr = dat ? { m: "ihm", f: "ihr", n: "ihm" }[n.g] : { m: "ihn", f: "sie", n: "es" }[n.g];
+    const q = dat ? `Hilfst du ${DEF.dat[n.g]} ${first(nounForm(n, "dat"))}? – Ja, ich helfe ___.` : `Siehst du ${DEF.akk[n.g]} ${first(nounForm(n, "akk"))}? – Ja, ich sehe ___.`;
+    return item({ prompt: q, answer: pr, topic: "pronakk", lvl: "A2", audio: q.replace("___", pr), explain: `${n.a} ${n.w} → ${dat ? "dativo" : "acusativo"}: ${pr}` });
+  } };
+  const MAINS = [["Ich bin müde", "weil"], ["Ich habe keine Zeit", "weil"], ["Ich bin heute glücklich", "weil"], ["Ich glaube", "dass"], ["Meine Mutter sagt", "dass"], ["Ich hoffe", "dass"]];
+  L.nebensatz = { lvl: "A2", topics: ["nebensatz", "konj1", "temporal", "daobwohl"], f(r, topic) {
+    const v = pick(r, verbs()), p = pick(r, ["ich", "er", "sie", "wir", "sie3"]);
+    if (topic === "konj1" || (!topic && r() < 0.25)) {
+      const k = pick(r, ["deshalb", "trotzdem", "dann", "danach"]);
+      const before = { deshalb: "Ich habe heute frei.", trotzdem: "Es regnet.", dann: "Zuerst frühstücke ich.", danach: "Ich gehe zuerst einkaufen." }[k];
+      const ans = `${before} ${cap(k)} ${[pres(v, p), subj(p), v.c, SEP(v)].filter(Boolean).join(" ")}.`;
+      return item({ prompt: `Une con «${k}»: ${before} ${mainPres(v, p)}`, answer: ans, topic: "konj1", lvl: "A2", audio: ans, explain: `${k} ocupa la posición 1: el verbo va justo después.` });
+    }
+    if (topic === "daobwohl") {
+      const ans = `${cap(subPres(v, p).replace(/^(\S+)/, "obwohl $1"))}, bin ich müde.`.replace(/^Obwohl/, "Obwohl");
+      const s = `Obwohl ${subPres(v, p)}, bin ich müde.`;
+      return item({ prompt: `Completa con obwohl: ___, bin ich müde. (${mainPres(v, p)})`, answer: s, topic: "daobwohl", lvl: "B1", audio: s, explain: "obwohl = aunque; verbo conjugado al final de la subordinada." });
+    }
+    const m = pick(r, MAINS), ans = `${m[0]}, ${m[1]} ${subPres(v, p)}.`;
+    return item({ prompt: `Une con «${m[1]}»: ${m[0]}. ${mainPres(v, p)}`, answer: ans, topic: "nebensatz", lvl: "A2", audio: ans, explain: `En la subordinada con ${m[1]}, el verbo conjugado va al final${SEP(v) ? " (y el prefijo se une: " + SEP(v) + pres(v, p) + ")" : ""}.` });
+  } };
+  L.futur = { lvl: "A2", topics: ["futur", "werden"], f(r) {
+    const v = pick(r, verbs()), p = pick(r, PERS);
+    const ans = cap([subj(p), WERDEN[p], v.c, INF(v)].join(" ")) + ".";
+    return item({ prompt: `Pasa al Futur I: ${mainPres(v, p)}`, answer: ans, topic: "futur", lvl: "A2", audio: ans, explain: `werden (${WERDEN[p]}) + infinitivo al final` });
+  } };
+  const K2 = { haben: { ich: "hätte", du: "hättest", er: "hätte", wir: "hätten", ihr: "hättet", sie3: "hätten" }, sein: { ich: "wäre", du: "wärst", er: "wäre", wir: "wären", ihr: "wärt", sie3: "wären" }, werden: { ich: "würde", du: "würdest", er: "würde", wir: "würden", ihr: "würdet", sie3: "würden" } };
+  L.konj2 = { lvl: "A2", topics: ["konj2", "konj2irr"], f(r, topic) {
+    const p = pick(r, ["ich", "du", "er", "wir", "ihr", "sie3"]), v = pick(r, verbs());
+    if (topic === "konj2irr" || (!topic && r() < 0.3)) {
+      const A = v.aux[0] === "s" ? K2.sein[p] : K2.haben[p];
+      const ans = cap([subj(p), A, "gern", v.c, v.p2].join(" ")) + ".";
+      return item({ prompt: `Deseo en el pasado (Konjunktiv II): ${perf(v, p).replace(/\.$/, "")} … leider nicht. → ${cap(subj(p))} ___ gern …`, answer: ans, topic: "konj2irr", lvl: "B1", audio: ans, explain: `hätte/wäre + participio: ${A} … ${v.p2}` });
+    }
+    if (r() < 0.5) {
+      const hs = r() < 0.5 ? "haben" : "sein", ctx = hs === "haben" ? pick(r, ["gern mehr Zeit", "gern einen Hund", "lieber ein größeres Auto"]) : pick(r, ["gern am Meer", "lieber zu Hause", "jetzt gern im Urlaub"]);
+      const s = cap(subj(p)) + " ___ " + ctx + ".";
+      return item({ prompt: s + ` (${hs}, Konjunktiv II)`, answer: K2[hs][p], topic: "konj2", lvl: "A2", audio: s.replace("___", K2[hs][p]), explain: `${hs} → ${K2[hs][p]}` });
+    }
+    const ans = cap([subj(p), K2.werden[p], "gern", v.c, INF(v)].join(" ")) + ".";
+    return item({ prompt: `Expresa un deseo con «würde» + gern: ${mainPres(v, p)}`, answer: ans, topic: "konj2", lvl: "A2", audio: ans, explain: `würde + infinitivo al final` });
+  } };
+
+  /* ======== B1 ======== */
+  const PASSIV_OBJ = { reparieren: ["Auto", "Fahrrad", "Computer", "Uhr", "Handy"], putzen: ["Küche", "Bad", "Fenster", "Wohnung"], öffnen: ["Fenster", "Tür", "Flasche"], verkaufen: ["Auto", "Haus", "Fahrrad", "Sofa"], waschen: ["Auto", "Hemd", "Hose", "Pullover"], schreiben: ["Brief"], lesen: ["Buch", "Zeitung", "Brief"], bezahlen: ["Rechnung"], bestellen: ["Kuchen", "Saft"], kaufen: ["Brot", "Kuchen", "Blume", "Tisch"] };
+  L.passiv = { lvl: "B1", topics: ["passiv"], f(r) {
+    const vi = pick(r, Object.keys(PASSIV_OBJ)), v = verbs(x => x.i === vi)[0]; if (!v) return null;
+    const pool = nouns(n => PASSIV_OBJ[vi].includes(n.w)); if (!pool.length) return null;
+    const n = pick(r, pool), plural = r() < 0.3 && n.pl, g = plural ? "pl" : n.g, nf = plural ? n.pl : n.w;
+    const tense = pick(r, ["pres", "praet", "modal", "perf"]);
+    const act = { pres: `Man ${pres(v, "er")} ${DEF.akk[g]} ${nf}.`, praet: `Man ${praet(v, "er")} ${DEF.akk[g]} ${nf}.`, modal: `Man muss ${DEF.akk[g]} ${nf} ${INF(v)}.`, perf: `Man hat ${DEF.akk[g]} ${nf} ${v.p2}.` }[tense];
+    const pl = g === "pl";
+    const pas = { pres: `${cap(DEF.nom[g])} ${nf} ${pl ? "werden" : "wird"} ${v.p2}.`, praet: `${cap(DEF.nom[g])} ${nf} ${pl ? "wurden" : "wurde"} ${v.p2}.`, modal: `${cap(DEF.nom[g])} ${nf} ${pl ? "müssen" : "muss"} ${v.p2} werden.`, perf: `${cap(DEF.nom[g])} ${nf} ${pl ? "sind" : "ist"} ${v.p2} worden.` }[tense];
+    return item({ prompt: `Pasa a pasiva: ${act}`, answer: pas, topic: "passiv", lvl: tense === "perf" ? "B2" : "B1", audio: pas, explain: { pres: "werden + participio", praet: "wurde + participio", modal: "modal + participio + werden", perf: "sein + participio + worden" }[tense] });
+  } };
+  L.genitiv = { lvl: "B1", topics: ["genitiv"], f(r) {
+    const owner = pick(r, r() < 0.6 ? nouns(n => n.person) : concrete()), plural = !owner.nform && r() < 0.2 && owner.pl;
+    const thing = owner.person ? pick(r, ["der Name", "die Adresse", "das Zimmer", "das Auto", "die Telefonnummer"]) : pick(r, ["die Farbe", "der Preis", "die Größe"]);
+    const g = plural ? "pl" : owner.g, nf = nounForm(owner, "gen", plural);
+    const a = DEF.gen[g];
+    const s = `${cap(thing)} ___`;
+    return item({ prompt: `${s} (${plural ? "die " + owner.pl : owner.a + " " + owner.w}) – genitivo`, answer: alts(a + " ", nf), topic: "genitiv", lvl: "B1", audio: `${cap(thing)} ${a} ${first(nf)}`, explain: g === "m" || g === "n" ? `masculino/neutro: des + -(e)s${owner.nform ? " (declinación en -n: " + owner.nform + ")" : ""}` : `femenino y plural: der` });
+  } };
+  L.relativ = { lvl: "B1", topics: ["relativ"], f(r) {
+    const n = pick(r, nouns(n => n.person)), plural = r() < 0.25 && n.pl, g = plural ? "pl" : n.g;
+    const c = pick(r, ["nom", "akk", "dat", "mit"]);
+    const REL = { nom: { m: "der", f: "die", n: "das", pl: "die" }, akk: { m: "den", f: "die", n: "das", pl: "die" }, dat: { m: "dem", f: "der", n: "dem", pl: "denen" } };
+    const rel = c === "mit" ? REL.dat[g] : REL[c][g];
+    const clause = { nom: `___ dort ${plural ? "stehen" : "steht"}`, akk: "___ ich gestern gesehen habe", dat: "___ ich oft helfe", mit: "mit ___ ich oft spreche" }[c];
+    const head = `${cap(DEF.nom[g])} ${plural ? n.pl : n.w}`;
+    const s = `${head}, ${clause}, ${plural ? "wohnen" : "wohnt"} in Berlin.`;
+    return item({ prompt: s, answer: rel, topic: "relativ", lvl: "B1", audio: s.replace("___", rel), explain: `${plural ? "plural" : { m: "masculino", f: "femenino", n: "neutro" }[n.g]} + ${c === "mit" ? "mit (dativo)" : CASE_ES[c]} → ${rel}` });
+  } };
+  L.plusq = { lvl: "B1", topics: ["plusq"], f(r) {
+    const v = pick(r, verbs()), p = pick(r, ["ich", "er", "wir", "sie3"]);
+    const A = (v.aux[0] === "s" ? WAR : HATTE)[p];
+    const s = `Nachdem ${subj(p)} ${v.c} ${v.p2} ___, ${p === "ich" ? "ging ich" : p === "wir" ? "gingen wir" : p === "er" ? "ging er" : "gingen sie"} nach Hause.`;
+    return item({ prompt: s, answer: A + (v.aux.length > 1 ? "|" + (v.aux[1] === "s" ? WAR : HATTE)[p] : ""), topic: "plusq", lvl: "B1", audio: s.replace("___", A), explain: `Plusquamperfekt: ${v.aux[0] === "s" ? "war" : "hatte"} + participio` });
+  } };
+  const ZU_MAIN = ["Ich habe keine Lust", "Ich habe vergessen", "Es ist wichtig", "Ich versuche", "Ich habe heute keine Zeit"];
+  L.zuinf = { lvl: "B1", topics: ["zuinf"], f(r) {
+    const v = pick(r, verbs()), m = pick(r, ZU_MAIN);
+    const zu = SEP(v) ? SEP(v) + "zu" + BASE(v) : "zu " + INF(v);
+    const ans = `${m}, ${v.c} ${zu}.`;
+    return item({ prompt: `Une con zu + infinitivo: ${m}. ${mainPres(v, "ich")}`, answer: ans, topic: "zuinf", lvl: "B1", audio: ans, explain: SEP(v) ? `verbo separable: el zu va dentro (${SEP(v)}zu${BASE(v)})` : "zu + infinitivo al final" });
+  } };
+
+  /* ======== B2 – C2 ======== */
+  const K1 = (v) => BASE(v) === "sein" ? "sei" : stemOf(BASE(v)) + "e";
+  L.konj1 = { lvl: "B2", topics: ["b2-konj1", "indrede"], f(r) {
+    const v = pick(r, verbs(v => BASE(v) !== "wissen")), who = pick(r, ["er", "sie"]);
+    const direct = mainPres(v, "ich");
+    const k = K1(v);
+    const ans = `${who === "er" ? "Er" : "Sie"} sagt, ${who} ${[k, v.c, SEP(v)].filter(Boolean).join(" ")}.`;
+    const alt = `${who === "er" ? "Er" : "Sie"} sagt, dass ${who} ${subPres(v, "er").replace(/^er /, "")}.`;
+    return item({ prompt: `Estilo indirecto con Konjunktiv I: ${who === "er" ? "Er" : "Sie"} sagt: „${direct}“`, answer: ans, topic: "b2-konj1", lvl: "B2", audio: ans, explain: `Konjunktiv I (3.ª persona) = raíz + e: ${who} ${k}. En la lengua hablada también: ${alt}` });
+  } };
+  L.futur2 = { lvl: "B2", topics: ["b2-futur2"], f(r) {
+    const v = pick(r, verbs()), p = pick(r, ["er", "sie", "sie3", "du"]);
+    const aux = v.aux[0] === "s" ? "sein" : "haben";
+    const ans = cap([subj(p), WERDEN[p], v.c, v.p2, aux].join(" ")) + ".";
+    return item({ prompt: `Suposición sobre el pasado (Futur II): ${perf(v, p)} (wahrscheinlich)`, answer: ans + (v.aux.length > 1 ? "|" + cap([subj(p), WERDEN[p], v.c, v.p2, v.aux[1] === "s" ? "sein" : "haben"].join(" ")) + "." : ""), topic: "b2-futur2", lvl: "B2", audio: ans, explain: `werden + participio + ${aux}: expresa una suposición («habrá …»).` });
+  } };
+  const P2ADJ = ["reparieren", "putzen", "öffnen", "verkaufen", "waschen", "schreiben", "lesen", "bezahlen", "bestellen", "kaufen"];
+  L.partattr = { lvl: "C1", topics: ["c1-partattr", "partadj"], f(r) {
+    if (r() < 0.5) {
+      const vi = pick(r, P2ADJ), v = verbs(x => x.i === vi)[0], pool = nouns(n => PASSIV_OBJ[vi].includes(n.w)); if (!v || !pool.length) return null;
+      const n = pick(r, pool), c = r() < 0.5 ? "nom" : "akk", g = n.g;
+      const relp = { nom: { m: "der", f: "die", n: "das" }, akk: { m: "der", f: "die", n: "das" } }[c][g];
+      const adv = pick(r, ["gestern", "endlich", "schon", "sorgfältig"]);
+      const head = c === "nom" ? `${cap(DEF.nom[g])} ${n.w}, ${relp} ${adv} ${v.p2} wurde, ist jetzt hier.` : `Ich sehe ${DEF.akk[g]} ${n.w}, ${relp} ${adv} ${v.p2} wurde.`;
+      const f = v.p2 + ADJ.weak[c][g];
+      const ans = c === "nom" ? `${cap(DEF.nom[g])} ${adv} ${f} ${n.w} ist jetzt hier.` : `Ich sehe ${DEF.akk[g]} ${adv} ${f} ${n.w}.`;
+      return item({ prompt: `Convierte la relativa en atributo con participio: ${head}`, answer: ans, topic: "c1-partattr", lvl: "C1", audio: ans, explain: `Partizip II como adjetivo (acción terminada/pasiva): ${v.p2} + -${ADJ.weak[c][g]}` });
+    }
+    const vb = pick(r, [["lachen", "lacht", "lachende"], ["singen", "singt", "singende"], ["schlafen", "schläft", "schlafende"], ["tanzen", "tanzt", "tanzende"], ["warten", "wartet", "wartende"], ["spielen", "spielt", "spielende"], ["weinen", "weint", "weinende"]]);
+    const n = pick(r, nouns(n => n.person && !n.nform)), g = n.g, A = cap(DEF.nom[g]);
+    const head = `${A} ${n.w}, ${DEF.nom[g]} dort ${vb[1]}, wohnt neben uns.`;
+    const ans = `${A} dort ${vb[2]} ${n.w} wohnt neben uns.`;
+    return item({ prompt: `Convierte en atributo con Partizip I: ${head}`, answer: ans, topic: "c1-partattr", lvl: "C1", audio: ans, explain: `Partizip I = infinitivo + d (acción simultánea): ${vb[0]} → ${vb[2]}` });
+  } };
+  L.passivers = { lvl: "C1", topics: ["c1-passivers"], f(r) {
+    const vi = pick(r, ["reparieren", "öffnen", "waschen", "verkaufen", "putzen", "lesen"]), v = verbs(x => x.i === vi)[0], pool = nouns(n => PASSIV_OBJ[vi].includes(n.w)); if (!v || !pool.length) return null;
+    const n = pick(r, pool), g = n.g;
+    const src = `${cap(DEF.nom[g])} ${n.w} kann leicht ${v.p2} werden.`;
+    const a1 = `${cap(DEF.nom[g])} ${n.w} lässt sich leicht ${INF(v)}.`, a2 = `${cap(DEF.nom[g])} ${n.w} ist leicht zu ${INF(v)}.`;
+    return item({ prompt: `Sustituye la pasiva con «sich lassen» o «sein + zu»: ${src}`, answer: a1 + "|" + a2, topic: "c1-passivers", lvl: "C1", audio: a1, explain: `können + pasiva ≈ sich lassen + infinitivo ≈ sein + zu + infinitivo` });
+  } };
+
+  // Catálogo de generadores
+  const ALL = L;
+  const byTopic = {};
+  for (const [id, g] of Object.entries(ALL)) for (const t of g.topics) (byTopic[t] = byTopic[t] || []).push(id);
+  function make(topic, r, tries = 6) {
+    const ids = byTopic[topic]; if (!ids) return null;
+    for (let i = 0; i < tries; i++) { const it = ALL[pick(r, ids)].f(r, topic); if (it && it.answer) return it; }
+    return null;
+  }
+  function makeLevel(lvl, r) {
+    const LV6 = ["A1", "A2", "B1", "B2", "C1", "C2"], k = LV6.indexOf(lvl);
+    const ids = Object.keys(ALL).filter(id => LV6.indexOf(ALL[id].lvl) <= k && LV6.indexOf(ALL[id].lvl) >= k - 2);
+    for (let i = 0; i < 8; i++) { const g = ALL[pick(r, ids.length ? ids : Object.keys(ALL))]; const it = g.f(r); if (it && it.answer) return it; }
+    return null;
+  }
+  return { make, makeLevel, has: t => !!byTopic[t], topics: () => Object.keys(byTopic), all: ALL, _: { pres, praet, nounForm, ADJ, DEF, impDu, nouns, verbs } };
+})();
+
 /* ===== Núcleo: catálogo, estado, generador, contenido ===== */
 
 const D = window.__DATA__;
-const LEVELS = ["A1", "A2", "B1"];
-const LV = { A1: 0, A2: 1, B1: 2 };
+const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const LV = { A1: 0, A2: 1, B1: 2, B2: 3, C1: 4, C2: 5 };
 const SK = {
   gram: { n: "Gramática", c: "var(--c-gram)" }, escucha: { n: "Escucha", c: "var(--c-escucha)" },
   redac: { n: "Redacción", c: "var(--c-redac)" }, habla: { n: "Habla", c: "var(--c-habla)" },
@@ -21052,7 +21492,7 @@ const MEX = {}; D.maribel.exercises.forEach(x => MEX[x.id] = x);
 /* ---------- Catálogo ---------- */
 const CATALOG = [];
 (function buildCatalog() {
-  for (const lv of LEVELS) D.progression[lv].forEach((id, i) => { const g = G[id]; CATALOG.push({ k: "g:" + id, skill: "gram", lvl: lv, t: g.es, sub: g.t, ord: i }); });
+  for (const lv of LEVELS) (D.progression[lv] || []).forEach((id, i) => { const g = G[id]; CATALOG.push({ k: "g:" + id, skill: "gram", lvl: lv, t: g.es, sub: g.t, ord: i }); });
   D.listening.forEach((x, i) => CATALOG.push({ k: "h:" + x.id, skill: "escucha", lvl: x.lvl, t: x.t, sub: x.type === "diktat" ? "Dictado" : "Comprensión", type: x.type, ord: i }));
   D.writing.forEach((x, i) => CATALOG.push({ k: "s:" + x.id, skill: "redac", lvl: x.lvl, t: x.t, sub: x.words + (x.words === "formulario" ? "" : " palabras"), ord: i }));
   D.speaking.forEach((x, i) => CATALOG.push({ k: "p:" + x.id, skill: "habla", lvl: x.lvl, t: x.t, sub: x.type, type: x.type, ord: i }));
@@ -21294,12 +21734,21 @@ function writingPhrases(lv) {
   const out = [{ t: "h", text: "Frases útiles" },
   { t: "p", md: "**Formales:** " + D.usefulPhrases.formal.join(" · ") },
   { t: "p", md: "**Informales:** " + D.usefulPhrases.informal.join(" · ") }];
-  if (lv === "B1") out.push({ t: "p", md: "**Opinión:** " + D.usefulPhrases.opinion.join(" · ") });
+  if (LV[lv] >= 2) out.push({ t: "p", md: "**Opinión:** " + D.usefulPhrases.opinion.join(" · ") });
   return out;
 }
 function pickExercises(list, n, seed, random) {
   if (!random) return list.slice(0, n || list.length);
   return shuffle(list, rng(seed)).slice(0, n);
+}
+// En una clase: mezcla ejercicios fijos (en orden aleatorio) con ejercicios nuevos de los generadores,
+// así cada clase y cada repaso son distintos. La semilla hace que pantalla y Word coincidan.
+function mixExercises(g, n, seed) {
+  const r = rng(seed), nGen = typeof GEN !== "undefined" && GEN.has(g.id) ? Math.floor(n / 2) : 0;
+  const gen = [], seen = new Set();
+  for (let i = 0; gen.length < nGen && i < nGen * 4; i++) { const it = GEN.make(g.id, r); if (it && it.kind !== "mc" && !seen.has(it.prompt)) { seen.add(it.prompt); gen.push([it.prompt, it.answer, it.audio]); } }
+  const fixed = shuffle(g.q.map((q, i) => [q[0], q[1], g.full ? g.full[i] : null]), r).slice(0, n - gen.length);
+  return shuffle(fixed.concat(gen), r);
 }
 function build(b, plan) {
   const k = b.k, inf = info(k), seed = (plan ? plan.id : "lib") + ":" + (b.sd || 0);
@@ -21307,11 +21756,12 @@ function build(b, plan) {
   const m = R.material, s = R.sol;
   if (k.startsWith("g:") || k.startsWith("r:")) {
     const g = G[k.slice(2)], rep = k.startsWith("r:");
-    const qs = pickExercises(g.q, rep ? (b.n || 4) : (b.n || g.q.length), seed, rep);
+    const qs = plan ? mixExercises(g, rep ? (b.n || 4) : (b.n || Math.min(g.q.length, 10)), seed) : g.q.slice(0, b.n || g.q.length);
     R.title = (rep ? "Repaso: " : "") + g.t + " — " + g.es;
     if (!rep) m.push({ t: "p", md: g.ex });
     if (g.tab && g.tab.length) m.push({ t: "table", rows: g.tab, head: true });
     m.push({ t: "h", text: "Ejercicios" }, { t: "ex", items: qs.map(q => q[0]) });
+    R.full = qs.map(q => q[2] || null);
     s.push({ t: "ol", items: qs.map(q => "**" + solTxt(q[1]) + "**"), ctx: qs.map(q => q[0]) });
     const tip = D.tips[g.id]; if (tip) R.notes.push({ topic: g.es, ...tip });
   } else if (k.startsWith("h:")) {
@@ -21619,7 +22069,7 @@ function blockHTML(b, plan, withSol = true) {
 function shell() {
   const st = cur();
   document.body.innerHTML = `<div class="app"><aside class="side">
-    <div class="brand"><div class="logo">De</div><div><b>Deutsch A1–B1</b><small>Preparar clases</small></div></div>
+    <div class="brand"><div class="logo">De</div><div><b>Deutsch A1–C2</b><small>Preparar clases</small></div></div>
     <div class="who"><div class="avatar" id="whoAv"></div><div style="flex:1;min-width:0"><select id="stuSel" aria-label="Estudiante"></select><small id="whoLv"></small></div>${icon("down", 14, 'style="color:var(--label3)"')}</div>
     <nav id="nav">${NAV.map(([v, n, ic, c]) => `<button class="navi" data-v="${v}"><span class="tile" style="background:${c}">${icon(ic, 14)}</span>${n}<span class="cnt" data-cnt="${v}"></span></button>`).join("")}</nav>
     <div class="grow"></div><div class="foot"><span id="syncb" class="syncb" data-k="ok">Guardado</span><br>Sesión protegida con doble factor.<br>Se cierra sola tras 30 min sin uso.</div>
@@ -21848,7 +22298,7 @@ function act(e) {
     case "bminus": plan.blocks[i].min = Math.max(0, plan.blocks[i].min - 5); break;
     case "bplus": plan.blocks[i].min += 5; break;
     case "nminus": plan.blocks[i].n = Math.max(1, (plan.blocks[i].n || G[plan.blocks[i].k.slice(2)].q.length) - 1); break;
-    case "nplus": plan.blocks[i].n = Math.min(G[plan.blocks[i].k.slice(2)].q.length, (plan.blocks[i].n || G[plan.blocks[i].k.slice(2)].q.length) + 1); break;
+    case "nplus": plan.blocks[i].n = Math.min(GEN.has(plan.blocks[i].k.slice(2)) ? 16 : G[plan.blocks[i].k.slice(2)].q.length, (plan.blocks[i].n || G[plan.blocks[i].k.slice(2)].q.length) + 1); break;
     case "btoggle": { const sd = plan.blocks[i].sd; openBlocks.has(sd) ? openBlocks.delete(sd) : openBlocks.add(sd); break; }
     case "bswap": if (!swapBlock(plan, i)) toast("No hay otro contenido equivalente"); break;
     case "bup": [plan.blocks[i - 1], plan.blocks[i]] = [plan.blocks[i], plan.blocks[i - 1]]; break;
@@ -22033,11 +22483,11 @@ function slidesFor(plan) {
       if (isG) out.push({ html: kick(skill) + `<h1>${esc(g.es)}</h1>` + (k.startsWith("g:") ? `<p class="small" style="color:#d1d1d6">${md(g.ex)}</p>` : "") + (g.tab.length ? tableHTML(g.tab) : ""), notes: tipNotes });
       const fulls = isG ? g.full : MEX[k.slice(5)].full;
       exPart.items.forEach((q, i) => {
-        const idx = (isG ? g.q : MEX[k.slice(5)].q).findIndex(x => x[0] === q), full = idx >= 0 ? fulls[idx] : null;
+        const idx = (isG ? g.q : MEX[k.slice(5)].q).findIndex(x => x[0] === q), full = R.full && R.full[i] ? R.full[i] : idx >= 0 ? fulls[idx] : null;
         out.push({
           html: head + `<div class="muted small">${i + 1} / ${exPart.items.length}</div><p class="q">${blanks(esc(q))}</p>`,
           reveal: `<p class="rev q">${esc(solTxt(solPart.items[i].replace(/\*\*/g, "")))}</p>${full ? `<p class="small muted">${esc(full)} ${audioBtn(full)}</p>` : ""}`,
-          onReveal: full && Audio_.has(full) ? () => Audio_.play(full) : null, notes: tipNotes,
+          onReveal: full ? () => Audio_.play(full) : null, notes: tipNotes,
         });
       });
     } else if (k.startsWith("h:")) {
@@ -22244,7 +22694,7 @@ function exportWord(plan, student) {
   }
   const footer = new Footer({ children: [new Paragraph({ tabStops: [{ type: TabStopType.RIGHT, position: 9600 }], children: [R_(st.name + "  ·  " + fmtDate(plan.date), { size: 16, color: "AEAEB2" }), R_("\t", { size: 16 }), new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: "AEAEB2" })] })] });
   const d = new Document({
-    creator: "Deutsch A1–B1", title: (student ? "Ficha " : "Clase ") + st.name,
+    creator: "Deutsch A1–C2", title: (student ? "Ficha " : "Clase ") + st.name,
     styles: { default: { document: { run: { font: FONT, size: 22, color: INK } } } },
     sections: [{ properties: { page: { margin: { top: 1150, bottom: 1100, left: 1250, right: 1250 } } }, footers: { default: footer }, children: doc }],
   });
@@ -22282,7 +22732,12 @@ function exercisesFor(k, r, n = 2) {
       out.push({ key: base + "#" + i, topic, kind: mc ? "mc" : "type", prompt: q[0], answer: sol, opts: mc ? choiceSet(first, pool, 3, r) : null, audio: fulls[i] });
     });
   };
-  if (k.startsWith("g:")) { const g = G[k.slice(2)]; gramLike(g.q, g.full, k, g.es); }
+  if (k.startsWith("g:")) {
+    const g = G[k.slice(2)];
+    // Más de la mitad de las veces, ejercicios nuevos creados al momento: nunca se repiten igual
+    if (GEN.has(g.id)) for (let j = 0; j < n; j++) if (r() < 0.65) { const it = GEN.make(g.id, r); if (it) out.push({ key: k + "#gen", topic: g.es, kind: it.kind, prompt: it.prompt, answer: it.answer, opts: it.opts || null, audio: it.audio, atext: it.audio, why: it.explain }); }
+    if (out.length < n) gramLike(g.q, g.full, k, g.es);
+  }
   else if (k.startsWith("m:ex:")) { const x = MEX[k.slice(5)]; if (x) gramLike(x.q, x.full, k, info(k).t); }
   else if (k.startsWith("m:v:")) {
     const l = D.maribel.vocabLists[+k.slice(4)];
@@ -22316,7 +22771,7 @@ function dailyKeys(st, n) { return stuKeysSeen(st).filter(REVIEWABLE).map(k => [
 
 /* ---------- Pantalla principal ---------- */
 function initStudent(profile) {
-  SV.profile = profile;
+  SV.profile = profile; SV.plevel = cur().level || "A1"; SV.ptopic = "";
   document.body.innerHTML = `<div class="sapp" id="sapp"></div>`;
   document.addEventListener("click", sAct);
   Results.mine().then(r => { SV.results = r; sRender(); });
@@ -22341,6 +22796,12 @@ function sRender() {
    <section class="hero" data-s="daily"><div><div class="hk">Repaso de hoy</div><div class="ht">${today.length ? "¡Sigue así!" : "10 ejercicios de lo que hemos visto"}</div>
     <div class="hs">${streak ? `${icon("flame", 15)} ${streak} ${streak === 1 ? "día seguido" : "días seguidos"} · ` : ""}${tAcc != null ? `hoy ${tAcc}% de aciertos` : "unos 8 minutos"}</div></div>
     <button class="btn lg" style="background:#fff;color:#000">${icon("play", 16)} Empezar</button></section>
+   <h2 class="sh2">Práctica libre</h2>
+   <div class="group">
+    <div class="row"><span class="lab"><b>Nivel</b></span><div style="width:min(420px,60%)">${LEVELS.map(l => `<button class="chip ${SV.plevel === l ? "on" : ""}" data-s="plevel" data-v="${l}" style="margin:2px">${l}</button>`).join("")}</div></div>
+    <div class="row"><span class="lab"><b>Tema</b><small>Opcional: todos los del nivel si no eliges</small></span><select class="inp" style="width:auto;max-width:55%" id="ptopic"><option value="">Mezcla de temas</option>${(D.progression[SV.plevel] || []).map(id => `<option value="${id}" ${SV.ptopic === id ? "selected" : ""}>${esc(G[id].es)}</option>`).join("")}</select></div>
+    <div class="row"><span class="lab"><small>Ejercicios nuevos en cada sesión, creados al momento.</small></span><button class="btn pri" data-s="practice">${icon("play", 14)} Practicar</button></div>
+   </div>
    <h2 class="sh2">Repasar una clase</h2>
    <div class="group">${classes.slice(0, 12).map(c => { const ks = keysOfClass(st, c); return `<div class="row click" data-s="cls" data-id="${esc(c.id)}"><div class="tile" style="background:var(--c-gram)">${icon("clase", 16)}</div><span class="lab"><b>${esc(fmtDateLong(c.date))}</b><small>${esc(classTitle(c))}</small></span><span class="val">${ks.length ? ks.length + " temas" : ""}</span>${icon("right", 14, 'style="color:var(--label3)"')}</div>`; }).join("") || '<div class="row"><span class="lab"><small>Todavía no hay clases.</small></span></div>'}</div>
    <h2 class="sh2">Juegos con lo que ya sabes</h2>
@@ -22355,9 +22816,21 @@ function keysOfClass(st, c) {
   const ks = c.blocks && c.blocks.length ? c.blocks.map(b => b.k.startsWith("r:") ? "g:" + b.k.slice(2) : b.k) : Object.keys(st.given).filter(k => (st.given[k] || []).includes(c.date));
   return [...new Set(ks)].filter(REVIEWABLE);
 }
+function buildPractice(level, topic, total = 12) {
+  const r = rng(String(Date.now())), items = [], tries = total * 6;
+  const pool = topic ? [topic] : (D.progression[level] || []);
+  for (let i = 0; items.length < total && i < tries; i++) {
+    const t = topic || pool[Math.floor(r() * pool.length)], g = G[t]; if (!g) continue;
+    if (GEN.has(t) && r() < 0.6) { const it = GEN.make(t, r); if (it) { items.push({ key: "g:" + t + "#gen", topic: g.es, kind: it.kind, prompt: it.prompt, answer: it.answer, opts: it.opts || null, audio: it.audio, atext: it.audio, why: it.explain }); continue; } }
+    items.push(...exercisesFor("g:" + t, r, 1).slice(0, 1));
+  }
+  return shuffle(items, r).slice(0, total);
+}
 function sAct(e) {
   const el = e.target.closest("[data-s]"); if (!el || !$("#sapp")) return;
   const st = cur(), a = el.dataset.s;
+  if (a === "plevel") { SV.plevel = el.dataset.v; SV.ptopic = ""; sRender(); return; }
+  if (a === "practice") { SV.ptopic = ($("#ptopic") || {}).value || ""; runSession("Práctica " + SV.plevel + (SV.ptopic ? " · " + G[SV.ptopic].es : ""), buildPractice(SV.plevel, SV.ptopic)); return; }
   if (a === "out") Results.signOut();
   else if (a === "daily") { const ks = dailyKeys(st, 7); if (!ks.length) return toast("Todavía no hay temas vistos para repasar"); runSession("Repaso de hoy", buildSession(ks, 10, Date.now())); }
   else if (a === "cls") { const c = st.classes.find(x => x.id === el.dataset.id), ks = keysOfClass(st, c); if (!ks.length) return toast("Esta clase no tiene ejercicios de repaso"); runSession("Clase del " + fmtDate(c.date), buildSession(ks, 10, Date.now())); }
@@ -22508,7 +22981,7 @@ if (mode === "teacher") initTeacher(); else initStudent(__profile);
   };
 
   function showLogin(info) {
-    screen("Deutsch A1–B1", "Inicia sesión para continuar", `
+    screen("Deutsch A1–C2", "Inicia sesión para continuar", `
       <form id="f" autocomplete="on"><label class="afl">Email<input class="inp" type="email" name="email" autocomplete="username" required maxlength="200"></label>
       <label class="afl">Contraseña<input class="inp" type="password" name="password" autocomplete="current-password" required maxlength="200"></label>
       <div id="amsg" class="amsg ${info ? "ok" : ""}">${esc(info || "")}</div>
