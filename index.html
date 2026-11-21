@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-7owkDl3JGOnFWNQSmaOW5rcKo4hKh46Ph+xDmwk9ZiI=' 'sha256-7zk0/AQOk5B6LwzEX5Sxg2PJ45Evy2oPpewqMgbByAI='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qGftvPsCk3Cu7HIj3WGAtWC2IfvjvGTGWE+wNp0be84=' 'sha256-orX2nxYg9ijbUgy05XxR7AVIrW1u0sGvOrtVKjXSU1c=' 'sha256-zcMNTFVqi4YXb2Vzhhe7egsjWNDeD2g65Ge01qI7i9I=' 'sha256-cP1dXYT3ExNW2GRZ6HInr+ECKsddBFdRKngGZ8gyfJE=' 'sha256-7zk0/AQOk5B6LwzEX5Sxg2PJ45Evy2oPpewqMgbByAI='; style-src 'unsafe-inline'; img-src 'self' data:; media-src data: blob:; font-src 'none'; connect-src https://kslnlfmzlgyqkbrqrhdg.supabase.co wss://kslnlfmzlgyqkbrqrhdg.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f5f5f7">
@@ -14,7 +14,7 @@
   --green:#34c759; --red:#ff3b30; --orange:#ff9500; --yellow:#ffcc00;
   --der:#0a64d8; --die:#e0352b; --das:#1f9d48;
   --c-gram:#007aff; --c-escucha:#af52de; --c-redac:#ff9500; --c-habla:#30b0c7; --c-vocab:#ff2d55; --c-pron:#34c759;
-  --c-juego:#5856d6; --c-dtz:#8e8e93; --c-extra:#32ade6; --c-propio:#a2845e; --c-repaso:#8e8e93; --c-cierre:#636366;
+  --c-juego:#5856d6; --c-lesen:#0f9d8a; --c-dtz:#8e8e93; --c-extra:#32ade6; --c-propio:#a2845e; --c-repaso:#8e8e93; --c-cierre:#636366;
   --r-s:8px; --r-m:12px; --r-l:18px; --r-xl:22px;
   --sh-1:0 1px 2px rgba(0,0,0,.04),0 1px 1px rgba(0,0,0,.02);
   --sh-2:0 4px 16px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
@@ -21490,7 +21490,7 @@ const SK = {
   redac: { n: "Redacción", c: "var(--c-redac)" }, habla: { n: "Habla", c: "var(--c-habla)" },
   vocab: { n: "Vocabulario", c: "var(--c-vocab)" }, pron: { n: "Pronunciación", c: "var(--c-pron)" },
   dtz: { n: "Examen DTZ", c: "var(--c-dtz)" }, extra: { n: "Números y hora", c: "var(--c-extra)" },
-  propio: { n: "Material propio", c: "var(--c-propio)" }, juego: { n: "Juego", c: "var(--c-juego)" }, repaso: { n: "Repaso", c: "var(--c-repaso)" },
+  propio: { n: "Material propio", c: "var(--c-propio)" }, juego: { n: "Juego", c: "var(--c-juego)" }, lesen: { n: "Lectura", c: "var(--c-lesen)" }, repaso: { n: "Repaso", c: "var(--c-repaso)" },
   cierre: { n: "Cierre", c: "var(--c-cierre)" },
 };
 const G = {}; D.grammar.forEach(g => G[g.id] = g);
@@ -21499,7 +21499,7 @@ const S = {}; D.writing.forEach(x => S[x.id] = x);
 const P = {}; D.speaking.forEach(x => P[x.id] = x);
 const A = {}; D.pronRules.forEach(x => A[x.id] = x);
 const AX = {}; D.pronExercises.forEach(x => AX[x.id] = x);
-const SKI = { gram: "gram", escucha: "escucha", redac: "redac", habla: "habla", vocab: "vocab", pron: "pron", dtz: "dtz", extra: "extra", propio: "propio", repaso: "repaso", cierre: "cierre", juego: "juego" };
+const SKI = { gram: "gram", escucha: "escucha", redac: "redac", habla: "habla", vocab: "vocab", pron: "pron", dtz: "dtz", extra: "extra", propio: "propio", repaso: "repaso", cierre: "cierre", juego: "juego", lesen: "doc" };
 const PRON_EX_FOR = { vokallaenge: "lang", auslaut: "ausl", diphth: "eiie", ch: "ch", akzent: "akzent", spst: "spst" };
 const MEX = {}; D.maribel.exercises.forEach(x => MEX[x.id] = x);
 
@@ -21508,6 +21508,7 @@ const CATALOG = [];
 (function buildCatalog() {
   for (const lv of LEVELS) (D.progression[lv] || []).forEach((id, i) => { const g = G[id]; CATALOG.push({ k: "g:" + id, skill: "gram", lvl: lv, t: g.es, sub: g.t, ord: i }); });
   D.listening.forEach((x, i) => CATALOG.push({ k: "h:" + x.id, skill: "escucha", lvl: x.lvl, t: x.t, sub: x.type === "diktat" ? "Dictado" : "Comprensión", type: x.type, ord: i }));
+  (D.readings || []).forEach((x, i) => CATALOG.push({ k: "l:" + x.id, skill: "lesen", lvl: x.lvl, t: x.t, sub: x.es + " · " + x.src.name, theme: x.theme, ord: i }));
   D.writing.forEach((x, i) => CATALOG.push({ k: "s:" + x.id, skill: "redac", lvl: x.lvl, t: x.t, sub: x.words + (x.words === "formulario" ? "" : " palabras"), ord: i }));
   D.speaking.forEach((x, i) => CATALOG.push({ k: "p:" + x.id, skill: "habla", lvl: x.lvl, t: x.t, sub: x.type, type: x.type, ord: i }));
   D.maribel.vocabLists.forEach((x, i) => CATALOG.push({ k: "m:v:" + i, skill: "vocab", lvl: "A1", t: x.t, sub: "Lista A1 · " + x.items.length + " palabras", ord: i }));
@@ -21524,6 +21525,10 @@ const CATALOG = [];
   D.maribel.exercises.forEach((x, i) => CATALOG.push({ k: "m:ex:" + x.id, skill: "propio", lvl: "A1", t: x.t.replace(/\s*\(clases?[^)]*\)/, ""), sub: "Material propio · " + x.q.length + " ejercicios · " + ((x.t.match(/\((clases?[^)]*)\)/) || [])[1] || ""), special: "maribel", ord: 2 + i }));
 })();
 const CAT = {}; CATALOG.forEach(c => CAT[c.k] = c);
+const RD = {}; (D.readings || []).forEach(x => RD[x.id] = x);
+
+// Fuente y licencia de los textos reales (obligatorio citar)
+const srcLine = src => src ? `*Fuente:* ${src.author}, «${src.title}», ${src.name} (${src.url}) · Licencia: ${src.license}${src.note ? " · " + src.note : ""}` : "";
 
 function info(k) {
   if (k.startsWith("r:")) { const g = G[k.slice(2)]; return { k, skill: "repaso", lvl: g.lvl, t: "Repaso: " + g.es, sub: g.t }; }
@@ -21642,9 +21647,12 @@ const THEME_OF = {
   "v:1": "trabajo", "v:2": "rutina", "v:3": "comida", "v:4": "trabajo", "v:5": "viajes", "v:6": "persona", "v:7": "casa", "v:8": "sociedad",
   "m:v:0": "trabajo", "m:v:1": "persona", "m:v:2": "rutina", "m:v:3": "persona", "m:v:4": "casa", "m:v:5": "rutina", "m:v:6": "casa", "m:v:7": "ciudad",
 };
+// Material nuevo: el tema viene en los propios datos
+(D.readings || []).forEach(x => { THEME_OF["l:" + x.id] = x.theme; THEME_OF["h:r-" + x.id] = x.theme; });
+D.writing.concat(D.speaking).forEach(x => { if (x.theme) THEME_OF[(D.writing.includes(x) ? "s:" : "p:") + x.id] = x.theme; });
 // Lo que el estudiante sabrá hacer al terminar (objetivos «puedo…»)
 const CAN_DO = {
-  escucha: x => `Entender la idea principal y los detalles de «${x}»`, habla: x => `Hablar con fluidez sobre «${x}»`,
+  lesen: x => `Comprender un texto auténtico: «${x}»`, escucha: x => `Entender la idea principal y los detalles de «${x}»`, habla: x => `Hablar con fluidez sobre «${x}»`,
   redac: x => `Escribir un texto breve: «${x}»`, vocab: x => `Usar el vocabulario de «${x}»`, pron: x => `Pronunciar mejor: ${x}`, juego: x => `Consolidar lo aprendido jugando (${x})`,
 };
 function lastSkillDate(st, skill) {
@@ -21658,7 +21666,12 @@ function generate(opts) {
   const st = cur(), lv = opts.level, dur = opts.dur, sk = new Set(opts.skills);
   const plan = { id: uid(), sid: st.id, date: todayISO(), dur, level: lv, blocks: [], status: "plan", total: dur, homework: "", hwKey: "", notes: "", theme: "", objectives: [], hwItems: [] };
   const r = rng(plan.id), used = new Set(); let sd = 0;
-  const push = (k, min, extra) => { used.add(k); const b = Object.assign({ k, min, sd: sd++ }, extra || {}); plan.blocks.push(b); return b; };
+  const push = (k, min, extra) => {
+    used.add(k);
+    // un mismo texto no puede salir como escucha y como lectura en la misma clase
+    if (k.startsWith("h:r-")) used.add("l:" + k.slice(4)); if (k.startsWith("l:")) used.add("h:r-" + k.slice(2));
+    const b = Object.assign({ k, min, sd: sd++ }, extra || {}); plan.blocks.push(b); return b;
+  };
   // 1. Tema de la clase: el elegido o el menos trabajado que tenga material sin ver
   const themed = th => k => THEME_OF[k] === th;
   const avail = th => CATALOG.some(c => THEME_OF[c.k] === th && (c.lvl === null || (LV[c.lvl] <= LV[lv] && LV[c.lvl] >= LV[lv] - 1)) && !isSeen(st, c.k));
@@ -21689,9 +21702,9 @@ function generate(opts) {
     if (c) { gB = push(c.k, gm, { n: nGram(gm, 16) }); rest -= gm; }
   }
   // 5. Destrezas por rotación: primero la que hace más tiempo que no se trabaja
-  const PRI = ["escucha", "habla", "redac", "vocab", "pron", "juego"];
+  const PRI = ["escucha", "lesen", "habla", "redac", "vocab", "pron", "juego"];
   const order = PRI.filter(s => sk.has(s)).sort((a, b) => (lastSkillDate(st, a) || "0").localeCompare(lastSkillDate(st, b) || "0") || PRI.indexOf(a) - PRI.indexOf(b));
-  const LEN = { escucha: [10, dur >= 90 ? 15 : 10], habla: [10, dur >= 90 ? 15 : 10], redac: [10, 15], vocab: [5, 10], pron: [5, 10], juego: [5, 10] };
+  const LEN = { escucha: [10, dur >= 90 ? 15 : 10], habla: [10, dur >= 90 ? 15 : 10], redac: [10, 15], lesen: [10, dur >= 90 ? 20 : 15], vocab: [5, 10], pron: [5, 10], juego: [5, 10] };
   let hwWriting = false;
   for (const s of order) {
     if (rest < 5) { if (s === "redac") hwWriting = true; continue; }
@@ -21703,6 +21716,7 @@ function generate(opts) {
     if (s === "escucha") c = pickT(CATALOG.filter(x => x.skill === "escucha" && x.type === (L >= 10 ? "text" : "diktat")));
     else if (s === "habla") c = pickT(CATALOG.filter(x => x.skill === "habla" && x.type !== "Preguntas"));
     else if (s === "redac") c = pickT(CATALOG.filter(x => x.skill === "redac"));
+    else if (s === "lesen") c = pickT(CATALOG.filter(x => x.skill === "lesen"));
     else if (s === "vocab") c = pickT(CATALOG.filter(x => x.skill === "vocab"));
     else if (s === "pron") c = pickFrom(st, lv, CATALOG.filter(x => x.skill === "pron"), used);
     else if (s === "juego") {
@@ -21717,6 +21731,9 @@ function generate(opts) {
     if (c) { push(c.k, L); rest -= L; }
   }
   if (rest > 0) { const tgt = gB || plan.blocks.filter(b => !b.role).sort((a, b) => b.min - a.min)[0]; if (tgt) { tgt.min += rest; if (tgt === gB) gB.n = nGram(gB.min, 16); } rest = 0; }
+  // El tema que se muestra es el que de verdad comparten los bloques
+  { const cnt = {}; plan.blocks.forEach(b => { const t = THEME_OF[b.k]; if (t) cnt[t] = (cnt[t] || 0) + (b.role === "warm" ? 0.5 : 1); });
+    const best = Object.entries(cnt).sort((x, y) => y[1] - x[1])[0]; if (best && !opts.theme) plan.theme = best[0]; }
   // 6. Objetivos de la clase
   if (gB) plan.objectives.push(`Gramática: usar correctamente «${G[gB.k.slice(2)].es}» en frases propias`);
   plan.objectives.push(`Comunicación: ${THEMES[plan.theme]}`);
@@ -21809,11 +21826,23 @@ function build(b, plan) {
       m.push({ t: "plain", text: "Escucha el texto (dos veces) y responde a las preguntas." }, { t: "qa", items: x.q.map(q => q[0]) });
       R.read.push({ t: "quote", text: x.text }); R.audio = { key: "h:" + x.id, text: x.text };
       s.push({ t: "ol", items: x.q.map(q => "**" + q[1] + "**"), ctx: x.q.map(q => q[0]) }, { t: "h", text: "Transcripción" }, { t: "quote", text: x.text });
+      if (x.src) R.read.push({ t: "p", md: srcLine(x.src) });
     } else {
       m.push({ t: "plain", text: "Dictado: escucha cada frase y escríbela." }, { t: "lines", n: x.text.length, numbered: true });
       R.read.push({ t: "ol", items: x.text, audio: true });
       s.push({ t: "ol", items: x.text });
     }
+  } else if (k.startsWith("l:")) {
+    const x = RD[k.slice(2)];
+    R.title = x.t + " — " + x.es;
+    m.push({ t: "plain", text: "Lee el texto y haz las tareas." }, { t: "quote", text: x.text, plainStyle: true }, { t: "p", md: srcLine(x.src) });
+    m.push({ t: "h", text: "¿Richtig o falsch?" }, { t: "table", head: true, rows: [["", "richtig", "falsch"]].concat(x.tf.map(f => [f[0], "☐", "☐"])) });
+    m.push({ t: "h", text: "Preguntas" }, { t: "qa", items: x.q.map(q => q[0]) });
+    m.push({ t: "h", text: "Vocabulario del texto" }, { t: "table", head: true, rows: [["Alemán", "Español"]].concat(x.vocab.map(v => [v[0], ""])) });
+    m.push({ t: "h", text: "Para comentar" }, { t: "ul", items: x.discuss });
+    s.push({ t: "h", text: "Richtig / falsch" }, { t: "ul", items: x.tf.map(f => f[0] + " → **" + (f[1] ? "richtig" : "falsch") + "**") });
+    s.push({ t: "h", text: "Preguntas" }, { t: "ol", items: x.q.map(q => "**" + q[1] + "**"), ctx: x.q.map(q => q[0]) });
+    s.push({ t: "h", text: "Vocabulario" }, { t: "table", head: true, rows: [["Alemán", "Español"]].concat(x.vocab) });
   } else if (k.startsWith("s:")) {
     const x = S[k.slice(2)];
     m.push({ t: "plain", text: x.task }, { t: "ul", items: x.points }, { t: "p", md: "*Extensión:* " + x.words + (x.words === "formulario" ? "" : " palabras") });
@@ -22056,7 +22085,7 @@ const $ = (s, el = document) => el.querySelector(s);
 let view = "prep", form = null, libF = { skill: "", lvl: "", q: "" }, gameF = null;
 const openBlocks = new Set();
 const NAV = [["prep", "Clase", "clase", "#007aff"], ["games", "Juegos", "juego", "#5856d6"], ["stu", "Estudiantes", "alumnos", "#34c759"], ["lib", "Biblioteca", "biblio", "#ff9500"], ["access", "Accesos", "lock", "#ff3b30"], ["set", "Ajustes", "ajustes", "#8e8e93"]];
-const SKILLS_FORM = [["habla", "Habla"], ["gram", "Gramática"], ["escucha", "Escucha"], ["redac", "Redacción"], ["vocab", "Vocabulario"], ["pron", "Pronunciación"], ["juego", "Juego"]];
+const SKILLS_FORM = [["habla", "Habla"], ["gram", "Gramática"], ["escucha", "Escucha"], ["lesen", "Lectura"], ["redac", "Redacción"], ["vocab", "Vocabulario"], ["pron", "Pronunciación"], ["juego", "Juego"]];
 function defaultForm() { const st = cur(); return { sid: st.id, level: st.level, dur: 60, skills: ["habla", "gram", "escucha", "redac", "juego"], topic: "", repaso: true }; }
 function toast(msg, ms = 2200) {
   document.querySelectorAll(".toast").forEach(t => t.remove());
@@ -22256,7 +22285,7 @@ function viewStudents() {
 /* ---------- Biblioteca ---------- */
 function viewLib() {
   const st = cur(), f = libF, plan = curPlan();
-  const skills = ["gram", "escucha", "redac", "habla", "vocab", "pron", "juego", "extra", "dtz"].concat(st.special ? ["propio"] : []);
+  const skills = ["gram", "escucha", "lesen", "redac", "habla", "vocab", "pron", "juego", "extra", "dtz"].concat(st.special ? ["propio"] : []);
   const items = CATALOG.filter(c => (!c.special || c.special === st.special) && (!f.skill || c.skill === f.skill) && (!f.lvl || c.lvl === f.lvl || c.lvl === null || (c.skill === "dtz" && f.lvl === "B1")) && (!f.q || (c.t + " " + c.sub + " " + c.k).toLowerCase().includes(f.q.toLowerCase())));
   const cards = items.map(c => {
     const n = seenCount(st, c.k), inPlan = plan && plan.blocks.some(b => b.k === c.k);
@@ -22270,7 +22299,10 @@ function viewLib() {
     <div style="width:240px">${seg("lflvl", [["", "Todos"]].concat(LEVELS.map(l => [l, l])), f.lvl)}</div></div>
    <div class="chips" style="margin-bottom:18px"><button class="chip ${!f.skill ? "on" : ""}" data-act="lfskill" data-v="">Todo</button>${skills.map(s => `<button class="chip ${f.skill === s ? "on" : ""}" data-act="lfskill" data-v="${s}"><i style="background:${skc(s)}"></i>${SK[s].n}</button>`).join("")}</div>
    ${cards ? `<div class="libgrid">${cards}</div>` : '<div class="empty">No hay resultados.</div>'}
-   <details style="margin-top:28px;color:var(--label2);font-size:13px"><summary style="cursor:pointer">Fuentes consultadas</summary><ul>${D.sources.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
+   <details style="margin-top:28px;color:var(--label2);font-size:13px"><summary style="cursor:pointer">Fuentes y licencias</summary>
+   <p>Textos auténticos usados en «Lectura» y en las escuchas de B1–C2 (ejercicios elaborados para esta app):</p>
+   <ul>${(D.readings || []).map(r => `<li>«${esc(r.src.title)}» — ${esc(r.src.author)}, ${esc(r.src.name)}, ${esc(r.src.url)} · ${esc(r.src.license)}${r.src.note ? " · " + esc(r.src.note) : ""}</li>`).join("")}</ul>
+   <p>Formatos de examen inspirados en las descripciones oficiales del Goethe-Institut. Pronunciación y gramática:</p><ul>${D.sources.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
 }
 
 /* ---------- Ajustes ---------- */
@@ -22569,6 +22601,13 @@ function slidesFor(plan) {
         x.q.forEach((q, i) => out.push({ html: head + play + `<div class="muted small">${i + 1} / ${x.q.length}</div><p class="q">${esc(q[0])}</p>`, reveal: `<p class="rev">${esc(q[1])}</p>`, notes: `<blockquote>${esc(x.text)}</blockquote>` }));
         out.push({ html: head + `<p class="muted">Transcripción</p>`, reveal: `<blockquote>${esc(x.text)}</blockquote>` });
       } else x.text.forEach((s, i) => out.push({ html: head + `<div class="muted small">Frase ${i + 1} / ${x.text.length}</div><p style="margin:1em 0">${audioBtn(s, { label: "Escuchar" })} ${audioBtn(s, { label: "Despacio", slow: true })}</p>`, reveal: `<p class="rev q">${esc(s)}</p>`, audio: s }));
+    } else if (k.startsWith("l:")) {
+      const x = RD[k.slice(2)];
+      x.text.split(/\n\n+/).reduce((acc, p) => { const last = acc[acc.length - 1]; if (last && (last + p).split(" ").length < 130) acc[acc.length - 1] = last + "\n\n" + p; else acc.push(p); return acc; }, [])
+        .forEach((chunk, i, arr) => out.push({ html: head + `<div class="muted small">${i + 1} / ${arr.length}</div><blockquote style="font-style:normal">${esc(chunk)}</blockquote>${i === arr.length - 1 ? `<p class="small muted" style="font-size:.4em">${esc(x.src.name)} · ${esc(x.src.license)}</p>` : ""}`, audio: chunk }));
+      x.tf.forEach(f => out.push({ html: head + `<p class="muted small">¿Richtig o falsch?</p><p class="q">${esc(f[0])}</p>`, reveal: `<p class="rev">${f[1] ? "richtig" : "falsch"}</p>` }));
+      x.q.forEach(q => out.push({ html: head + `<p class="q">${esc(q[0])}</p>`, reveal: `<p class="rev small">${esc(q[1])}</p>` }));
+      out.push({ html: head + `<p class="muted small">Para comentar</p><ul>${x.discuss.map(d => `<li>${esc(d)}</li>`).join("")}</ul>` });
     } else if (k.startsWith("s:")) {
       const x = S[k.slice(2)];
       out.push({ html: head + `<p>${esc(x.task)}</p><ul class="small">${x.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul><p class="muted small">${esc(x.words)}${x.words === "formulario" ? "" : " palabras"}</p>`, reveal: `<blockquote>${esc(x.model)}</blockquote>`, notes: "Frases útiles: " + esc(D.usefulPhrases.formal.join(" · ")) });
@@ -22811,7 +22850,7 @@ function progressHTML(st) {
   return `<h2 class="sh2">Mi progreso</h2><div class="group">${rows.slice(0, 8).map(([k, p, t]) => { const [l, c] = level(p); return `<div class="row ${k.startsWith("g:") ? "click" : ""}" ${k.startsWith("g:") ? `data-s="topic" data-k="${esc(k)}"` : ""}><span class="lab"><b>${esc(info(k).t)}</b><small style="color:${c}">${l} · ${Math.round(p * 100)}% en ${t} ejercicios</small></span><div class="bar" style="width:90px;--c:${c}"><i style="width:${Math.round(p * 100)}%"></i></div>${k.startsWith("g:") ? icon("right", 14, 'style="color:var(--label3)"') : ""}</div>`; }).join("")}</div>
    <div class="gf">Ordenado de más difícil a más fácil. Toca un tema para practicarlo.</div>`;
 }
-const REVIEWABLE = k => /^(g:|m:ex:|m:v:|v:|a:|m:uhr|m:zahlen|h:|m:frases|m:test)/.test(k);
+const REVIEWABLE = k => /^(g:|m:ex:|m:v:|v:|a:|m:uhr|m:zahlen|h:|l:|m:frases|m:test)/.test(k);
 
 /* Ejercicios a partir de una clave de contenido */
 function exercisesFor(k, r, n = 2) {
@@ -22850,6 +22889,10 @@ function exercisesFor(k, r, n = 2) {
     const x = H[k.slice(2)];
     if (x.type === "text") shuffle(x.q, r).slice(0, n).forEach(q => out.push({ key: k, topic: x.t, kind: "self", prompt: q[0], answer: q[1], audio: "h:" + x.id, atext: x.text, listenFirst: true }));
     else shuffle(x.text, r).slice(0, n).forEach(s => out.push({ key: k, topic: "Dictado", kind: "type", prompt: "Escucha y escribe la frase", answer: s, audio: s, autoplay: true, dictation: true }));
+  } else if (k.startsWith("l:")) {
+    const x = RD[k.slice(2)];
+    shuffle(x.tf, r).slice(0, n + 1).forEach(f => out.push({ key: k, topic: x.t, kind: "mc", prompt: "¿Richtig o falsch? (texto «" + x.t + "»)", big: f[0], answer: f[1] ? "richtig" : "falsch", opts: ["richtig", "falsch"] }));
+    shuffle(x.vocab, r).slice(0, 1).forEach(v => out.push({ key: k, topic: x.t, kind: "type", prompt: "¿Cómo se dice en alemán? (vocabulario del texto)", big: v[1], answer: v[0].split(",")[0].trim() }));
   } else if (k === "m:frases") shuffle(D.maribel.frases, r).slice(0, n + 1).forEach(f => out.push({ key: k, topic: "Frases personales", kind: "type", prompt: "Tradúcelo al alemán", big: f[0], answer: f[1].split(" / ").join("|"), audio: f[1].split(" / ")[0] }));
   else if (k === "m:test") shuffle(D.maribel.test, r).slice(0, n).forEach(q => out.push({ key: k, topic: "Prueba de nivel", kind: "mc", prompt: q.q, answer: q.o[q.ok], opts: q.o }));
   return out;
